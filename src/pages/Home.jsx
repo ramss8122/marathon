@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   FaPersonRunning,
@@ -11,12 +11,67 @@ import {
   FaCircleCheck,
   FaRoute,
   FaTrophy,
-  FaUserPlus
+  FaUserPlus,
+  FaArrowsRotate,
+  FaCircleExclamation
 } from 'react-icons/fa6';
 import { RACE_PACKAGES, UPCOMING_EVENTS } from '../data/marathonData';
 
+// ⬇️ PASTE your marathon image link here.
+// Find one at https://unsplash.com/s/photos/marathon → right-click image → "Copy image address"
+// Tip: add ?auto=format&fit=crop&w=1200&q=80 at the end of the URL for faster loading.
+const HERO_IMAGE_URL = 'https://unsplash.com/photos/ttbCwN_mWic/download?force=true&w=1200';
+// Photo page: https://unsplash.com/photos/grayscale-photo-of-people-during-marathon-ttbCwN_mWic
+// Other options (swap the ID before /download):
+//   4oK5BlObZXg  (group running on road, daytime)
+//   wQNHTxEhIr8  (grayscale, men running a marathon)
+
 export default function Home() {
   const navigate = useNavigate();
+
+  // ── DYNAMIC LIVE DATABASE STATS (TRANSPARENCY) ──
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const fetchStats = useCallback(async () => {
+    try {
+      const res = await fetch('/api/transparency/stats');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setStats(json.data);
+          setLastUpdated(new Date(json.updatedAt || Date.now()).toLocaleTimeString());
+          setStatsError(null);
+        } else {
+          setStatsError(json.message || 'Live statistics unavailable.');
+          setStats(null);
+        }
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        setStatsError(errJson.message || 'Live database statistics currently unavailable.');
+        setStats(null);
+      }
+    } catch {
+      setStatsError('Backend server is offline. Live statistics unavailable.');
+      setStats(null);
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+    // Periodically sync every 12 seconds with MongoDB database
+    const timer = setInterval(fetchStats, 12000);
+    return () => clearInterval(timer);
+  }, [fetchStats]);
+
+  // Show only Chennai events in the Upcoming Events section
+  const chennaiEvents = UPCOMING_EVENTS.filter((event) =>
+    `${event.city} ${event.location}`.toLowerCase().includes('chennai')
+  );
 
   const handleRegisterPackage = (packageId) => {
     navigate(`/register?package=${packageId}`);
@@ -76,10 +131,11 @@ export default function Home() {
           <div className="hero-visual-wrap">
             <div className="hero-image-frame">
               <img
-                src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1000&q=80"
-                alt="Marathon Runner in action"
+                src={HERO_IMAGE_URL}
+                alt="Marathon runners on a road race"
                 className="hero-runner-img"
               />
+    
               <div className="hero-card-glow" aria-hidden="true"></div>
 
               {/* Floating Status Badges */}
@@ -131,9 +187,9 @@ export default function Home() {
               <div className="stat-icon-wrap">
                 <FaLocationDot />
               </div>
-              <div className="stat-number">5+</div>
-              <div className="stat-label">Cities</div>
-              <span className="stat-note">(Across South India)</span>
+              <div className="stat-number">1</div>
+              <div className="stat-label">City</div>
+              <span className="stat-note">(Chennai)</span>
             </div>
           </div>
         </div>
@@ -144,21 +200,27 @@ export default function Home() {
         <div className="content-container">
           <div className="section-header">
             <span className="section-eyebrow">Scheduled Races</span>
-            <h2 className="section-title">Upcoming Events</h2>
+           
             <p className="section-subtitle">
               Join spirited morning marathons designed for every runner and experience level.
             </p>
           </div>
 
+          {chennaiEvents.length === 0 && (
+            <p className="section-subtitle">
+              No Chennai events are scheduled right now. Please check back soon.
+            </p>
+          )}
+
           <div className="events-grid">
-            {UPCOMING_EVENTS.slice(0, 3).map((event) => (
+            {chennaiEvents.slice(0, 3).map((event) => (
               <div key={event.id} className="event-card">
                 <div className="event-card-image-wrap">
                   <img src={event.image} alt={event.name} className="event-card-img" />
                   <span className="event-city-badge">{event.city}</span>
                 </div>
                 <div className="event-card-body">
-                  <h3 className="event-card-title">{event.name}</h3>
+                  <h3 className="event-card-title">Chennai</h3>
                   <div className="event-meta-list">
                     <div className="event-meta-item">
                       <FaCalendarDays className="event-meta-icon" />
@@ -188,12 +250,7 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="section-footer-cta">
-            <Link to="/events" className="btn btn-outline">
-              <span>View All Events</span>
-              <FaArrowRight className="btn-icon" />
-            </Link>
-          </div>
+          
         </div>
       </section>
 
@@ -258,7 +315,7 @@ export default function Home() {
               <div className="step-num">1</div>
               <div className="step-icon-wrap"><FaRoute /></div>
               <h3 className="step-card-title">Explore Events</h3>
-              <p className="step-card-desc">Find upcoming marathon dates in Chennai, Bengaluru, and beyond.</p>
+              <p className="step-card-desc">Find upcoming marathon dates in Chennai.</p>
             </div>
 
             <div className="step-compact-card">
@@ -338,7 +395,6 @@ export default function Home() {
         </div>
       </section>
 
-
       {/* SECTION 6: FINAL REGISTRATION CTA */}
       <section className="section section-final-cta">
         <div className="content-container">
@@ -354,6 +410,157 @@ export default function Home() {
               </Link>
               <Link to="/contact" className="btn btn-outline btn-large">
                 <span>Have Questions? Contact Us</span>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 7: LIVE TRANSPARENCY STATISTICS (IMMEDIATELY ABOVE FOOTER) */}
+      <section className="section home-transparency-section" id="transparency-stats">
+        <div className="content-container">
+          <span className="transparency-eyebrow">OPEN BY DESIGN</span>
+          <h2 className="transparency-headline">
+            Nothing Hidden.<br />
+            Everything Accounted For.
+          </h2>
+          <p className="transparency-subhead">
+            Trust should not depend on a promise. The website makes it easy for runners to understand the initiative, registrations, and verified outcomes.
+          </p>
+
+          {/* Database Live Synchronization Status Bar */}
+          <div className="transparency-status-bar">
+            {statsLoading ? (
+              <span className="live-indicator" style={{ color: 'var(--text-muted)' }}>
+                <span className="live-indicator-dot" style={{ backgroundColor: '#9CA3AF' }} />
+                <span>Connecting to live registration database...</span>
+              </span>
+            ) : statsError ? (
+              <span className="live-indicator" style={{ color: '#DC2626' }}>
+                <FaCircleExclamation />
+                <span>{statsError}</span>
+              </span>
+            ) : (
+              <span className="live-indicator">
+                <span className="live-indicator-dot" />
+                <span>Live MongoDB Database Synchronized • Real-Time Participant Ledger</span>
+              </span>
+            )}
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {lastUpdated && (
+                <span className="live-timestamp">Last synced: {lastUpdated}</span>
+              )}
+              <button
+                type="button"
+                onClick={fetchStats}
+                className="btn btn-outline btn-sm"
+                style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem' }}
+                title="Refresh live counts from database"
+              >
+                <FaArrowsRotate className={statsLoading ? 'fa-spin' : ''} />
+                <span>Refresh</span>
+              </button>
+            </div>
+          </div>
+
+          {/* 4 DYNAMIC STATISTIC CARDS (MATCHING REFERENCE SCREENSHOT) */}
+          <div className="transparency-stats-grid">
+            {/* 1. Total Registrations */}
+            <div className="transparency-stat-card">
+              <div className="transparency-stat-number">
+                {statsLoading ? (
+                  <span className="stat-loading-pulse">...</span>
+                ) : stats ? (
+                  stats.totalRegistrations
+                ) : (
+                  <span style={{ color: '#9CA3AF' }}>--</span>
+                )}
+              </div>
+              <div className="transparency-stat-label">
+                Total Registrations
+              </div>
+              <span className="transparency-stat-sub">
+                Total participants registered in database
+              </span>
+            </div>
+
+            {/* 2. Pending Registrations */}
+            <div className="transparency-stat-card">
+              <div className="transparency-stat-number">
+                {statsLoading ? (
+                  <span className="stat-loading-pulse">...</span>
+                ) : stats ? (
+                  stats.pendingRegistrations
+                ) : (
+                  <span style={{ color: '#9CA3AF' }}>--</span>
+                )}
+              </div>
+              <div className="transparency-stat-label">
+                Pending Registrations
+              </div>
+              <span className="transparency-stat-sub">
+                Registrations awaiting verification
+              </span>
+            </div>
+
+            {/* 3. Confirmed Registrations */}
+            <div className="transparency-stat-card">
+              <div className="transparency-stat-number">
+                {statsLoading ? (
+                  <span className="stat-loading-pulse">...</span>
+                ) : stats ? (
+                  stats.confirmedRegistrations
+                ) : (
+                  <span style={{ color: '#9CA3AF' }}>--</span>
+                )}
+              </div>
+              <div className="transparency-stat-label">
+                Confirmed Registrations
+              </div>
+              <span className="transparency-stat-sub">
+                Verified participant runner entries
+              </span>
+            </div>
+
+            {/* 4. Completed Payments */}
+            <div className="transparency-stat-card">
+              <div className="transparency-stat-number">
+                {statsLoading ? (
+                  <span className="stat-loading-pulse">...</span>
+                ) : stats ? (
+                  stats.completedPayments
+                ) : (
+                  <span style={{ color: '#9CA3AF' }}>--</span>
+                )}
+              </div>
+              <div className="transparency-stat-label">
+                Completed Payments
+              </div>
+              <span className="transparency-stat-sub">
+                Successfully verified entrant transactions
+              </span>
+            </div>
+          </div>
+
+          {/* PUBLIC IMPACT LEDGER CARD (MATCHING REFERENCE SCREENSHOT) */}
+          <div className="transparency-ledger-card">
+            <div className="transparency-ledger-header">
+              <h3 className="transparency-ledger-title">Public impact ledger</h3>
+              <span className="live-indicator" style={{ fontSize: '0.82rem' }}>
+                <span className="live-indicator-dot" /> Live Verified Data Only
+              </span>
+            </div>
+            <p className="transparency-ledger-desc">
+              This area is connected directly to our verified runner registration database. Each participant entry, registration status, and verified confirmation is accounted for transparently without manual intervention or hidden figures.
+            </p>
+            <div className="transparency-ledger-actions">
+              <Link to="/transparency" className="btn btn-primary">
+                <span>View Full Transparency Policy</span>
+                <FaArrowRight className="btn-icon" />
+              </Link>
+              <Link to="/register" className="btn btn-outline">
+                <span>Register as a Runner</span>
               </Link>
             </div>
           </div>

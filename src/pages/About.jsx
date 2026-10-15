@@ -15,6 +15,11 @@ import {
   FaCircleInfo
 } from 'react-icons/fa6';
 
+// Running / community image for the "Built by the Community" banner.
+// Swap this URL (or use a local image like '/images/community-run.jpg' from /public) if you want a different photo.
+const COMMUNITY_IMG =
+  'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=700&q=80';
+
 export default function About() {
   const values = [
     {
@@ -39,10 +44,27 @@ export default function About() {
     }
   ];
 
-  const cities = ['Chennai', 'Coimbatore', 'Bengaluru', 'Kochi'];
-
   return (
     <div className="page-wrapper about-page">
+      {/* Button + image fixes for the dark "Built by the Community" banner */}
+      <style>{`
+        .about-team-banner .team-btn-outline {
+          background: transparent !important;
+          color: #ffffff !important;
+          border: 2px solid rgba(255, 255, 255, 0.85) !important;
+        }
+        .about-team-banner .team-btn-outline:hover {
+          background: #ffffff !important;
+          color: #111111 !important;
+        }
+        .about-team-banner .about-team-img {
+          width: 100%;
+          height: 100%;
+          min-height: 280px;
+          object-fit: cover;
+          border-radius: 16px;
+        }
+      `}</style>
 
       {/* ── FULL-SCREEN HERO ── */}
       <section className="page-hero">
@@ -65,7 +87,7 @@ export default function About() {
               About <span>INDIA</span><br />RUNTRUST
             </h1>
             <p className="page-hero-subtitle">
-              A community-driven running organisation connecting passionate runners across Indian cities through transparent, inclusive, and memorable race experiences.
+              A community-driven running organisation connecting passionate runners in Chennai through transparent, inclusive, and memorable race experiences.
             </p>
             <div className="page-hero-actions">
               <Link to="/register" className="btn btn-primary btn-large">
@@ -78,7 +100,7 @@ export default function About() {
             </div>
             <div className="page-hero-highlights">
               <span className="page-hero-highlight"><FaCircleCheck /> Community-Driven Events</span>
-              <span className="page-hero-highlight"><FaCircleCheck /> 4 Active Cities</span>
+              <span className="page-hero-highlight"><FaCircleCheck /> Active in Chennai</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Zero Hidden Fees</span>
             </div>
           </div>
@@ -116,7 +138,7 @@ export default function About() {
               <p className="about-body-text">
                 INDIA RUNTRUST was founded on the simple belief that running is for everyone. We are a growing
                 organisation of passionate volunteers, fitness enthusiasts, and community leaders working together to
-                bring world-class running events to cities across South India.
+                bring world-class running events to Chennai.
               </p>
               <p className="about-body-text">
                 Our events are designed to be safe, transparent, and memorable — with clearly published registration
@@ -127,17 +149,15 @@ export default function About() {
                   <FaLocationDot className="about-cities-icon" /> Currently Active In:
                 </span>
                 <div className="about-city-tags">
-                  {cities.map(city => (
-                    <span key={city} className="about-city-tag">{city}</span>
-                  ))}
+                  <span className="about-city-tag">Chennai</span>
                 </div>
               </div>
             </div>
 
             <div className="about-split-image">
               <img
-                src="https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?auto=format&fit=crop&w=800&q=80"
-                alt="INDIA RUNTRUST runners at the start line"
+                src="https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=800&q=80"
+                alt="Runners participating in a marathon"
                 className="about-feature-img"
               />
             </div>
@@ -243,19 +263,19 @@ export default function About() {
                 We are always looking to collaborate with like-minded individuals and organisations.
               </p>
               <div className="about-team-actions">
-                <Link to="/contact" className="btn btn-primary">
-                  <span>Get in Touch</span>
+                <Link to="/register" className="btn btn-primary">
+                  <span>Register Now</span>
                   <FaArrowRight className="btn-icon" />
                 </Link>
-                <Link to="/events" className="btn btn-outline">
-                  <span>View Events</span>
+                <Link to="/contact" className="btn team-btn-outline">
+                  <span>Get in Touch</span>
                   <FaArrowRight className="btn-icon" />
                 </Link>
               </div>
             </div>
             <div className="about-team-image-wrap">
               <img
-                src="https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=700&q=80"
+                src={COMMUNITY_IMG}
                 alt="INDIA RUNTRUST community runners"
                 className="about-team-img"
               />
@@ -270,7 +290,7 @@ export default function About() {
           <div className="final-cta-card">
             <h2 className="final-cta-title">Ready to Run With Us?</h2>
             <p className="final-cta-desc">
-              Join hundreds of runners across South India. Register for our next event and be part of the INDIA RUNTRUST story.
+              Join hundreds of runners across Chennai. Register for our next event and be part of the INDIA RUNTRUST story.
             </p>
             <div className="final-cta-buttons">
               <Link to="/register" className="btn btn-primary btn-large">

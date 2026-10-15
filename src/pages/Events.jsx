@@ -6,7 +6,6 @@ import {
   FaArrowRight,
   FaPersonRunning,
   FaClock,
-  FaFilter,
   FaCircleCheck,
   FaMedal,
   FaRoute,
@@ -14,20 +13,20 @@ import {
   FaWater,
   FaKitMedical,
   FaShirt,
-  FaAppleWhole
+  FaAppleWhole,
+  FaXmark
 } from 'react-icons/fa6';
 import { UPCOMING_EVENTS } from '../data/marathonData';
 
 export default function Events() {
   const navigate = useNavigate();
-  const [selectedCity, setSelectedCity] = useState('All');
   const [activeFaq, setActiveFaq] = useState(null);
+  const [selectedCategoryModal, setSelectedCategoryModal] = useState(null);
 
-  const cities = ['All', 'Chennai', 'Coimbatore', 'Bengaluru', 'Kochi'];
-
-  const filteredEvents = selectedCity === 'All'
-    ? UPCOMING_EVENTS
-    : UPCOMING_EVENTS.filter(evt => evt.city.toLowerCase() === selectedCity.toLowerCase());
+  // Chennai events mattum
+  const chennaiEvents = UPCOMING_EVENTS.filter(
+    (evt) => evt.city && evt.city.toLowerCase() === 'chennai'
+  );
 
   const handleRegister = (eventId) => {
     navigate(`/register?event=${eventId}`);
@@ -39,9 +38,12 @@ export default function Events() {
 
   const categories = [
     {
+      id: '1k',
       distance: '1K',
       title: 'Family & Fun Run',
+      fee: '₹499',
       tagline: 'Ideal for Beginners & Kids',
+      shortDescription: 'A cheerful, un-timed run designed for first-timers, kids, and families seeking an active morning together.',
       cutOff: '30 Minutes',
       minAge: '5+ Years',
       elevation: 'Flat (0m)',
@@ -50,9 +52,12 @@ export default function Events() {
       featured: false
     },
     {
+      id: '3k',
       distance: '3K',
       title: 'Health Stride',
+      fee: '₹599',
       tagline: 'Step into Regular Running',
+      shortDescription: 'Ideal milestone for joggers transitioning into regular running routines with full course cheer zones.',
       cutOff: '45 Minutes',
       minAge: '8+ Years',
       elevation: 'Gentle (<10m)',
@@ -61,9 +66,12 @@ export default function Events() {
       featured: false
     },
     {
+      id: '5k',
       distance: '5K',
       title: 'Classic Fitness Run',
+      fee: '₹699',
       tagline: 'The Popular Community Stride',
+      shortDescription: 'A popular choice for fitness enthusiasts and community groups aiming to test endurance and pace.',
       cutOff: '60 Minutes',
       minAge: '12+ Years',
       elevation: 'Gradual (<15m)',
@@ -72,9 +80,12 @@ export default function Events() {
       featured: true
     },
     {
+      id: '10k',
       distance: '10K',
       title: 'Endurance Challenge',
+      fee: '₹799',
       tagline: 'Pace, Speed & Stamina',
+      shortDescription: 'Targeted for seasoned runners focusing on speed and aerobic conditioning with official timing splits.',
       cutOff: '1 Hour 45 Mins',
       minAge: '15+ Years',
       elevation: 'Rolling Course',
@@ -83,9 +94,12 @@ export default function Events() {
       featured: false
     },
     {
+      id: '21k',
       distance: '21K',
       title: 'Half Marathon',
+      fee: '₹899',
       tagline: 'The Pinnacle Distance Test',
+      shortDescription: 'The pinnacle distance challenge featuring pacing pacers, energy stations, and comprehensive recovery facilities.',
       cutOff: '3 Hours 30 Mins',
       minAge: '18+ Years',
       elevation: 'Certified Course',
@@ -162,6 +176,29 @@ export default function Events() {
     }
   ];
 
+  // Register button alignment - inline styles (CSS file touch panna vendam)
+  const actionsRowStyle = {
+    display: 'flex',
+    width: '100%',
+    flexDirection: 'column',
+    gap: '0.75rem',
+    marginTop: 'auto',
+    paddingTop: '1.25rem',
+    boxSizing: 'border-box'
+  };
+
+  const registerBtnStyle = {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+    width: '100%',
+    minWidth: 0,
+    boxSizing: 'border-box',
+    whiteSpace: 'nowrap',
+    textAlign: 'center'
+  };
+
   return (
     <div className="page-wrapper events-page">
 
@@ -184,7 +221,7 @@ export default function Events() {
               Find Your <span>Next</span><br />Run
             </h1>
             <p className="page-hero-subtitle">
-              Join upcoming community running events across South India — 1K, 3K, 5K, 10K &amp; 21K categories available in Chennai, Coimbatore, Bengaluru, and Kochi.
+              Join upcoming community running events in Chennai — 1K, 3K, 5K, 10K &amp; 21K categories available
             </p>
             <div className="page-hero-actions">
               <Link to="/register" className="btn btn-primary btn-large">
@@ -196,7 +233,7 @@ export default function Events() {
               </a>
             </div>
             <div className="page-hero-highlights">
-              <span className="page-hero-highlight"><FaCircleCheck /> 4 Cities</span>
+              <span className="page-hero-highlight"><FaCircleCheck /> Chennai</span>
               <span className="page-hero-highlight"><FaCircleCheck /> 5 Distances</span>
               <span className="page-hero-highlight"><FaCircleCheck /> RFID Timed</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Finisher Medals</span>
@@ -210,56 +247,32 @@ export default function Events() {
               <span className="stat-label">Events Planned</span>
             </div>
             <div className="page-hero-image-frame">
-              <img
-                src="https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=800&q=80"
-                alt="Marathon event runners"
-                className="page-hero-img"
-              />
+             <img
+  src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80"
+  alt="Group of runners participating in a marathon"
+  className="about-feature-img"
+/>
               <div className="page-hero-img-caption">
-                <FaLocationDot /> Across South India
+                <FaLocationDot /> Chennai
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Filter Bar */}
-      <section className="events-filter-section">
-        <div className="content-container">
-          <div className="filter-bar">
-            <div className="filter-label">
-              <FaFilter className="filter-icon" />
-              <span>Filter by City:</span>
-            </div>
-            <div className="filter-pills">
-              {cities.map((city) => (
-                <button
-                  key={city}
-                  type="button"
-                  className={`filter-pill ${selectedCity === city ? 'active' : ''}`}
-                  onClick={() => setSelectedCity(city)}
-                >
-                  {city}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Events List */}
+      {/* ── EVENTS LIST (Chennai only) ── */}
       <section className="section events-list-section">
         <div className="content-container">
           <div className="section-header">
             <span className="section-eyebrow">Upcoming Runs</span>
-            <h2 className="section-title">South India Marathon Series</h2>
+            <h2 className="section-title">Chennai Marathon Series</h2>
             <p className="section-subtitle">
               Carefully scouted routes with tree-lined boulevards, waterfront paths, and full runner hydration facilities.
             </p>
           </div>
 
           <div className="events-grid">
-            {filteredEvents.map((event) => (
+            {chennaiEvents.map((event) => (
               <div key={event.id} className="event-card">
                 <div className="event-card-image-wrap">
                   <img src={event.image} alt={event.name} className="event-card-img" />
@@ -267,7 +280,7 @@ export default function Events() {
                 </div>
 
                 <div className="event-card-body">
-                  <h2 className="event-card-title">{event.name}</h2>
+                  <h2 className="event-card-title">{event.city}</h2>
 
                   <div className="event-meta-list">
                     <div className="event-meta-item">
@@ -324,7 +337,7 @@ export default function Events() {
         </div>
       </section>
 
-      {/* ── DISTANCE CATEGORIES BREAKDOWN ── */}
+      {/* ── DISTANCE CATEGORIES (Register buttons only) ── */}
       <section className="section bg-surface">
         <div className="content-container">
           <div className="section-header">
@@ -337,10 +350,19 @@ export default function Events() {
 
           <div className="category-matrix-grid">
             {categories.map((cat) => (
-              <div key={cat.distance} className={`category-matrix-card ${cat.featured ? 'featured' : ''}`}>
-                <span className="category-matrix-badge">{cat.distance} Race</span>
+              <div
+                key={cat.distance}
+                className={`category-matrix-card ${cat.featured ? 'featured' : ''}`}
+                style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', boxSizing: 'border-box' }}
+              >
+                <div className="category-matrix-head">
+                  <span className="category-matrix-badge">{cat.distance} Race</span>
+                  <span className="category-fee-badge">{cat.fee}</span>
+                </div>
+
                 <h3 className="category-matrix-title">{cat.title}</h3>
                 <p className="category-matrix-subtitle">{cat.tagline}</p>
+                <p className="category-short-desc">{cat.shortDescription}</p>
 
                 <div className="category-matrix-specs">
                   <div className="category-matrix-spec">
@@ -370,14 +392,24 @@ export default function Events() {
                   ))}
                 </div>
 
-                <Link
-                  to={`/register?package=${cat.distance.toLowerCase()}`}
-                  className={`btn ${cat.featured ? 'btn-primary' : 'btn-outline'} btn-block`}
-                  style={{ marginTop: 'auto' }}
-                >
-                  <span>Select {cat.distance}</span>
-                  <FaArrowRight className="btn-icon" />
-                </Link>
+                <div style={actionsRowStyle}>
+                  <Link
+                    to={`/register?package=${cat.id}`}
+                    className="btn btn-primary btn-sm"
+                    style={registerBtnStyle}
+                  >
+                    <span>Register {cat.distance}</span>
+                    <FaArrowRight className="btn-icon" />
+                  </Link>
+                  <button
+                    type="button"
+                    className="btn btn-outline btn-sm"
+                    style={registerBtnStyle}
+                    onClick={() => setSelectedCategoryModal(cat)}
+                  >
+                    <span>View Details</span>
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -432,50 +464,93 @@ export default function Events() {
         </div>
       </section>
 
-      {/* ── FAQS ACCORDION ── */}
-      <section className="section">
-        <div className="content-container">
-          <div className="section-header">
-            <span className="section-eyebrow">Frequently Asked Questions</span>
-            <h2 className="section-title">Runner Queries &amp; Event Day Guide</h2>
-            <p className="section-subtitle">
-              Got questions before registering? Find everything you need right here.
-            </p>
-          </div>
 
-          <div className="faq-accordion-wrap">
-            {faqs.map((faq, idx) => (
-              <div key={idx} className={`faq-item ${activeFaq === idx ? 'open' : ''}`}>
-                <button
-                  type="button"
-                  className="faq-question-btn"
-                  onClick={() => toggleFaq(idx)}
-                >
-                  <span>{faq.q}</span>
-                  <FaChevronDown className="faq-arrow" />
-                </button>
-                {activeFaq === idx && (
-                  <div className="faq-answer">
-                    <p>{faq.a}</p>
-                  </div>
-                )}
+
+      {/* ── RACE CATEGORY DETAILS MODAL ── */}
+      {selectedCategoryModal && (
+        <div className="modal-backdrop" onClick={() => setSelectedCategoryModal(null)}>
+          <div
+            className="modal-container category-details-modal"
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+          >
+            <div className="modal-header">
+              <div className="modal-header-text">
+                <span className="modal-badge">{selectedCategoryModal.distance} Official Distance</span>
+                <h3 className="modal-title">{selectedCategoryModal.title}</h3>
+                <span className="modal-price-tag">{selectedCategoryModal.fee} Registration Fee</span>
               </div>
-            ))}
-          </div>
+              <button
+                type="button"
+                className="modal-close-btn"
+                onClick={() => setSelectedCategoryModal(null)}
+                aria-label="Close modal"
+              >
+                <FaXmark />
+              </button>
+            </div>
 
-          {/* Action Callout */}
-          <div className="how-it-works-cta-box" style={{ marginTop: '3.5rem' }}>
-            <h3 className="cta-box-title">Ready to Experience the Course?</h3>
-            <p className="cta-box-desc">
-              Bib numbers are allocated on a first-come, first-served basis. Secure your registration today.
-            </p>
-            <Link to="/register" className="btn btn-primary btn-large">
-              <span>REGISTER FOR NEXT EVENT</span>
-              <FaArrowRight className="btn-icon" />
-            </Link>
+            <div className="modal-body">
+              <p className="modal-tagline"><strong>Focus:</strong> {selectedCategoryModal.tagline}</p>
+              <p className="modal-description">{selectedCategoryModal.shortDescription}</p>
+
+              <div className="modal-specs-grid">
+                <div className="spec-card">
+                  <span className="spec-label">Cut-off Time</span>
+                  <span className="spec-val">{selectedCategoryModal.cutOff}</span>
+                </div>
+                <div className="spec-card">
+                  <span className="spec-label">Minimum Age</span>
+                  <span className="spec-val">{selectedCategoryModal.minAge}</span>
+                </div>
+                <div className="spec-card">
+                  <span className="spec-label">Course Elevation</span>
+                  <span className="spec-val">{selectedCategoryModal.elevation}</span>
+                </div>
+                <div className="spec-card">
+                  <span className="spec-label">Hydration Stations</span>
+                  <span className="spec-val">{selectedCategoryModal.hydration}</span>
+                </div>
+              </div>
+
+              <div className="modal-inclusions-section">
+                <h4 className="inclusions-head">Package Perks &amp; Finisher Kit</h4>
+                <div className="modal-inclusions-list">
+                  {selectedCategoryModal.perks.map((perk, i) => (
+                    <div key={i} className="modal-perk-item">
+                      <FaCircleCheck className="perk-icon" />
+                      <span>{perk}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setSelectedCategoryModal(null)}
+              >
+                <span>Close</span>
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => {
+                  const catId = selectedCategoryModal.id;
+                  setSelectedCategoryModal(null);
+                  navigate(`/register?package=${catId}`);
+                }}
+              >
+                <span>Continue to Register ({selectedCategoryModal.distance})</span>
+                <FaArrowRight className="btn-icon" />
+              </button>
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
     </div>
   );

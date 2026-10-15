@@ -149,8 +149,8 @@ export default function Contact() {
             </div>
             <div className="page-hero-image-frame">
               <img
-                src="https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80"
-                alt="Contact INDIA RUNTRUST team"
+                src="https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?auto=format&fit=crop&w=1000&q=80"
+                alt="Marathon participants and running event community"
                 className="page-hero-img"
               />
               <div className="page-hero-img-caption">

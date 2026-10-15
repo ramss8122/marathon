@@ -213,11 +213,11 @@ export default function HowItWorks() {
               <span className="stat-label">Easy Steps</span>
             </div>
             <div className="page-hero-image-frame">
-              <img
-                src="https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?auto=format&fit=crop&w=800&q=80"
-                alt="Runners preparing for the race"
-                className="page-hero-img"
-              />
+             <img
+  src="https://images.unsplash.com/photo-1502904550040-7534597429ae?auto=format&fit=crop&w=800&q=80"
+  alt="Marathon runners running on the road"
+  className="about-feature-img"
+/>
               <div className="page-hero-img-caption">
                 <FaLocationDot /> Race Morning Preparation
               </div>
@@ -358,50 +358,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      {/* ── FAQS ── */}
-      <section className="section">
-        <div className="content-container">
-          <div className="section-header">
-            <span className="section-eyebrow">Clear Answers</span>
-            <h2 className="section-title">How It Works: Common Questions</h2>
-            <p className="section-subtitle">
-              Have doubts about chip timing, corral line-ups, or distance adjustments?
-            </p>
-          </div>
-
-          <div className="faq-accordion-wrap">
-            {faqs.map((faq, idx) => (
-              <div key={idx} className={`faq-item ${activeFaq === idx ? 'open' : ''}`}>
-                <button
-                  type="button"
-                  className="faq-question-btn"
-                  onClick={() => toggleFaq(idx)}
-                >
-                  <span>{faq.q}</span>
-                  <FaChevronDown className="faq-arrow" />
-                </button>
-                {activeFaq === idx && (
-                  <div className="faq-answer">
-                    <p>{faq.a}</p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-
-          {/* Action Callout */}
-          <div className="how-it-works-cta-box" style={{ marginTop: '3.5rem' }}>
-            <h3 className="cta-box-title">Ready to take the first step?</h3>
-            <p className="cta-box-desc">
-              Registration takes less than two minutes. Choose your race category now.
-            </p>
-            <Link to="/register" className="btn btn-primary btn-large">
-              <span>REGISTER NOW</span>
-              <FaArrowRight className="btn-icon" />
-            </Link>
-          </div>
-        </div>
-      </section>
+     
 
     </div>
   );

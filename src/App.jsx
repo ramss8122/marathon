@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import FloatingFaqButton from './components/FloatingFaqButton';
 
 // Public Pages
 import Home from './pages/Home';
@@ -13,6 +14,7 @@ import Transparency from './pages/Transparency';
 import Community from './pages/Community';
 import Contact from './pages/Contact';
 import Registration from './pages/Registration';
+import Faq from './pages/Faq';
 
 // Admin Pages
 import AdminLogin from './pages/admin/AdminLogin';
@@ -37,6 +39,7 @@ function PublicLayout() {
       <main className="main-content">
         <Outlet />
       </main>
+      <FloatingFaqButton />
       <Footer />
     </div>
   );
@@ -86,6 +89,8 @@ export default function App() {
           <Route path="/community" element={<Community />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/register" element={<Registration />} />
+          <Route path="/faq" element={<Faq />} />
+          <Route path="/faq.html" element={<Faq />} />
           {/* Catch-all route within public layout */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import {
   FaShieldHalved,
@@ -14,11 +14,52 @@ import {
   FaFilePdf,
   FaHeartPulse,
   FaTruckMedical,
-  FaWater
+  FaWater,
+  FaUsers,
+  FaRotate,
+  FaCircleExclamation,
+  FaDatabase
 } from 'react-icons/fa6';
 import { RACE_PACKAGES } from '../data/marathonData';
 
 export default function Transparency() {
+  const [stats, setStats] = useState(null);
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+  const [lastUpdated, setLastUpdated] = useState(null);
+
+  const fetchStats = useCallback(async () => {
+    setStatsLoading(true);
+    try {
+      const res = await fetch('/api/transparency/stats');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && json.data) {
+          setStats(json.data);
+          setLastUpdated(new Date(json.updatedAt || Date.now()).toLocaleTimeString());
+          setStatsError(null);
+        } else {
+          setStatsError(json.message || 'Live statistics unavailable.');
+          setStats(null);
+        }
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        setStatsError(errJson.message || 'Live database statistics currently unavailable.');
+        setStats(null);
+      }
+    } catch {
+      setStatsError('Backend server is offline. Live statistics unavailable.');
+      setStats(null);
+    } finally {
+      setStatsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+    const timer = setInterval(fetchStats, 15000);
+    return () => clearInterval(timer);
+  }, [fetchStats]);
   const costBreakdown = [
     {
       percent: '38%',
@@ -87,7 +128,7 @@ export default function Transparency() {
       icon: <FaFileContract />,
       tag: 'Cancellation & Rollover',
       title: 'Weather & Force Majeure Rollover',
-      desc: 'If an event is rescheduled due to extreme weather or municipal directives, 100% of registrations automatically rollover to the rescheduled date or alternative city run.'
+      desc: 'If an event is rescheduled due to extreme weather or municipal directives, 100% of registrations automatically rollover to the rescheduled date.'
     },
     {
       icon: <FaUserLock />,
@@ -129,6 +170,44 @@ export default function Transparency() {
 
   return (
     <div className="page-wrapper transparency-page">
+      {/* Spacing / style fix for the Live Event Audit Ledger header */}
+      <style>{`
+        .transparency-ledger-head {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.9rem;
+          margin-bottom: 1.75rem;
+        }
+        .transparency-ledger-head .transparency-ledger-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.55rem;
+          padding: 0.45rem 1rem;
+          border-radius: 999px;
+          background: rgba(155, 28, 44, 0.08);
+          color: #9b1c2c;
+          font-size: 0.78rem;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .transparency-ledger-head .transparency-ledger-badge svg {
+          font-size: 0.95rem;
+        }
+        .transparency-ledger-head .transparency-ledger-title {
+          margin: 0;
+          line-height: 1.2;
+        }
+        .transparency-ledger-head .transparency-ledger-desc {
+          margin: 0;
+          max-width: 760px;
+          line-height: 1.7;
+        }
+        .transparency-stats-grid {
+          gap: 1.25rem;
+        }
+      `}</style>
 
       {/* ── FULL-SCREEN HERO ── */}
       <section className="page-hero">
@@ -187,6 +266,78 @@ export default function Transparency() {
         </div>
       </section>
 
+      {/* ── LIVE AUDIT LEDGER & DATABASE STATS ── */}
+      <section className="section transparency-live-section" style={{ paddingBottom: '1rem' }}>
+        <div className="content-container">
+          <div className="transparency-ledger-card">
+            <div className="transparency-ledger-head">
+              <div className="transparency-ledger-badge">
+                <FaDatabase />
+                <span>Live Event Audit Ledger</span>
+              </div>
+              <h2 className="transparency-ledger-title">Real-Time Registration Metrics</h2>
+              <p className="transparency-ledger-desc">
+                Public verification counts pulled directly from our MongoDB participant registry. We display live, unmanipulated records to guarantee honest reporting.
+              </p>
+            </div>
+
+            <div className="transparency-stats-grid">
+              <div className="stat-card">
+                <div className="stat-icon-wrap"><FaUsers /></div>
+                <div className="stat-number">
+                  {statsLoading ? '...' : (stats ? stats.totalRegistrations : '—')}
+                </div>
+                <div className="stat-label">Total Entries Submitted</div>
+                <span className="stat-note">(Live Verified Count)</span>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon-wrap"><FaCircleCheck /></div>
+                <div className="stat-number">
+                  {statsLoading ? '...' : (stats ? stats.confirmedRegistrations : '—')}
+                </div>
+                <div className="stat-label">Confirmed Runners</div>
+                <span className="stat-note">(Bib Allocated)</span>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon-wrap"><FaShieldHalved /></div>
+                <div className="stat-number">
+                  {statsLoading ? '...' : (stats ? stats.completedPayments : '—')}
+                </div>
+                <div className="stat-label">Completed Payments</div>
+                <span className="stat-note">(Reconciled Online)</span>
+              </div>
+            </div>
+
+            <div className="transparency-ledger-actions" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <div style={{ fontSize: '0.82rem', color: statsError ? '#DC2626' : '#15803D', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                {statsError ? (
+                  <>
+                    <FaCircleExclamation />
+                    <span>{statsError}</span>
+                  </>
+                ) : (
+                  <>
+                    <FaCircleCheck />
+                    <span>MongoDB Database Online • Synced {lastUpdated || 'just now'}</span>
+                  </>
+                )}
+              </div>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm"
+                onClick={fetchStats}
+                disabled={statsLoading}
+              >
+                <FaRotate className={statsLoading ? 'spinning' : ''} />
+                <span>{statsLoading ? 'Refreshing...' : 'Refresh Metrics'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── WHERE YOUR REGISTRATION FEE GOES ── */}
       <section className="section bg-surface">
         <div className="content-container">
@@ -220,7 +371,7 @@ export default function Transparency() {
             <span className="section-eyebrow">Standardized Pricing</span>
             <h2 className="section-title">Official Registration Fees</h2>
             <p className="section-subtitle">
-              All package fees are fixed across our South Indian events. The price you see is the price you pay at checkout.
+              All package fees are fixed across our Chennai events. The price you see is the price you pay at checkout.
             </p>
           </div>
 
@@ -321,57 +472,7 @@ export default function Transparency() {
         </div>
       </section>
 
-      {/* ── DOWNLOADABLE RULEBOOKS & CODE OF CONDUCT ── */}
-      <section className="section bg-surface">
-        <div className="content-container">
-          <div className="section-header">
-            <span className="section-eyebrow">Official Documents</span>
-            <h2 className="section-title">Download Governance Manuals</h2>
-            <p className="section-subtitle">
-              Review full technical specifications, medical protocols, and volunteer codes in detail.
-            </p>
-          </div>
-
-          <div className="category-matrix-grid">
-            {rulebooks.map((doc, idx) => (
-              <div key={idx} className="category-matrix-card">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '1rem' }}>
-                  <FaFilePdf style={{ color: '#9E1B22', fontSize: '1.75rem' }} />
-                  <span className="category-matrix-badge" style={{ marginBottom: 0 }}>Verified Docs</span>
-                </div>
-                <h3 className="category-matrix-title" style={{ fontSize: '1.15rem' }}>{doc.title}</h3>
-                <span style={{ fontSize: '0.78rem', color: '#9E1B22', fontWeight: 600, marginBottom: '0.65rem', display: 'block' }}>
-                  {doc.type}
-                </span>
-                <p className="category-matrix-subtitle" style={{ flexGrow: 1, marginBottom: '1.25rem' }}>
-                  {doc.desc}
-                </p>
-                <Link to="/contact" className="btn btn-outline btn-block">
-                  <span>Request Full Document</span>
-                  <FaArrowRight className="btn-icon" />
-                </Link>
-              </div>
-            ))}
-          </div>
-
-          {/* Action Callout */}
-          <div className="how-it-works-cta-box" style={{ marginTop: '3.5rem' }}>
-            <h3 className="cta-box-title">Have questions about our event rules?</h3>
-            <p className="cta-box-desc">
-              Our support team is always available to assist with eligibility, timing chip, or route clarifications.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/contact" className="btn btn-primary btn-large">
-                <span>TALK TO ORGANIZERS</span>
-                <FaArrowRight className="btn-icon" />
-              </Link>
-              <Link to="/register" className="btn btn-outline btn-large">
-                <span>REGISTER NOW</span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+     
 
     </div>
   );

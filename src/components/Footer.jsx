@@ -55,6 +55,7 @@ export default function Footer() {
             <li><Link to="/how-it-works" className="footer-link">How It Works</Link></li>
             <li><Link to="/impact" className="footer-link">Impact</Link></li>
             <li><Link to="/transparency" className="footer-link">Transparency</Link></li>
+            <li><Link to="/faq.html" className="footer-link">FAQ</Link></li>
           </ul>
         </div>
 
@@ -64,7 +65,7 @@ export default function Footer() {
           <ul className="footer-nav-list">
             <li><Link to="/community" className="footer-link">Community</Link></li>
             <li><Link to="/contact" className="footer-link">Contact Us</Link></li>
-            <li><Link to="/register" className="footer-link footer-highlight-link">Register Now</Link></li>
+            <li><Link to="/register" className="footer-link ">Register Now</Link></li>
             <li><Link to="/transparency" className="footer-link">Policies & Transparency</Link></li>
           </ul>
         </div>
@@ -83,7 +84,7 @@ export default function Footer() {
             </li>
             <li className="footer-contact-item">
               <FaLocationDot className="footer-contact-icon" />
-              <span>Chennai • Coimbatore • Bengaluru • Kochi</span>
+              <span>Chennai </span>
             </li>
           </ul>
         </div>

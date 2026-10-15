@@ -14,7 +14,12 @@ import {
   FaAward
 } from 'react-icons/fa6';
 
+// Marathon / running only photos
+const IMG_HERO_BG = 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=1600&q=80';
+const IMG_HERO_SIDE = 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=800&q=80';
+
 export default function Community() {
+  // Chennai chapter only
   const cityChapters = [
     {
       city: 'Chennai',
@@ -24,33 +29,6 @@ export default function Community() {
       location: 'Besant Nagar Beach Promenade (Near Police Booth)',
       paces: ['5:30 min/km Tempo', '6:30 min/km Steady', '7:30 min/km Walk-Jog'],
       coordinator: 'Karthik Ramanathan & Priya'
-    },
-    {
-      city: 'Bengaluru',
-      hub: 'Cubbon & Lalbagh Pacesetters',
-      members: '260+ Weekly Runners',
-      timing: 'Every Sunday • 6:00 AM IST',
-      location: 'Cubbon Park Bandstand & Queen Victoria Statue',
-      paces: ['5:00 min/km Fast', '6:00 min/km Endurance', '7:00 min/km Beginner'],
-      coordinator: 'Vikram Joshi & Deepa'
-    },
-    {
-      city: 'Coimbatore',
-      hub: 'Race Course Foothills Club',
-      members: '110+ Weekly Runners',
-      timing: 'Every Saturday • 6:00 AM IST',
-      location: 'Race Course Ring Road (Opposite Thomas Park)',
-      paces: ['5:45 min/km Pace', '6:45 min/km Steady', 'Easy 3K Stride'],
-      coordinator: 'Dr. S. Sundar & Ananya'
-    },
-    {
-      city: 'Kochi',
-      hub: 'Marine Drive Coastal Striders',
-      members: '95+ Weekly Runners',
-      timing: 'Every Sunday • 6:00 AM IST',
-      location: 'Rainbow Bridge Promenade Walkway',
-      paces: ['6:00 min/km Coastal Pace', '7:00 min/km Easy Stride'],
-      coordinator: 'Mathew Thomas & Reema'
     }
   ];
 
@@ -120,6 +98,7 @@ export default function Community() {
     }
   ];
 
+  // All gallery photos are marathon / running photos
   const galleryMoments = [
     {
       img: 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=600&q=80',
@@ -127,56 +106,39 @@ export default function Community() {
       desc: 'Thousands of runners stepping across the electronic timing mat as dawn breaks.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=600&q=80',
-      title: 'Coastal Route Pacing',
-      desc: 'Cool morning sea breeze propelling half marathoners along the coastal promenade.'
-    },
-    {
       img: 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=600&q=80',
-      title: 'Finish Arch Celebrations',
-      desc: 'The pure ecstasy of crossing the final timing gate after 21 demanding kilometers.'
+      title: 'Marathon Route Pacing',
+      desc: 'Runners finding their rhythm together along the course in the cool morning air.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1513593771513-7b58b6c4af38?auto=format&fit=crop&w=600&q=80',
-      title: 'Community Warm-up Vibes',
-      desc: 'Certified coaches leading dynamic stretching routines before the starting gun.'
+      img: 'https://unsplash.com/photos/bPJcBBM4RT8/download?force=true&w=800',
+      title: 'Road Race Celebrations',
+      desc: 'The pure joy of running shoulder to shoulder with fellow runners on race day.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=600&q=80',
-      title: 'Family & First-Timers',
-      desc: 'Parents and children hand-in-hand collecting their first commemorative medals.'
+      img: 'https://unsplash.com/photos/3NhTyPZ8CO8/download?force=true&w=800',
+      title: 'Community Running Vibes',
+      desc: 'A big crowd of runners moving together towards the finish stretch.'
     },
     {
-      img: 'https://images.unsplash.com/photo-1571008887538-b36bb32f4571?auto=format&fit=crop&w=600&q=80',
-      title: 'Post-Race Cooldown Circle',
-      desc: 'Sharing breakfast, comparing timing splits, and forging lasting friendships.'
+      img: 'https://unsplash.com/photos/Y0woUmyxGrw/download?force=true&w=800',
+      title: 'Strides on the Road',
+      desc: 'Every step counts, from first-timers to seasoned marathoners.'
+    },
+    {
+      img: 'https://unsplash.com/photos/ttbCwN_mWic/download?force=true&w=800',
+      title: 'Racing Spirit',
+      desc: 'Determination, camaraderie, and personal triumphs captured mid-race.'
     }
   ];
 
+  // Chennai testimonial only
   const testimonials = [
-    {
-      name: 'Rohan Sharma',
-      category: '10K Finisher',
-      city: 'Bengaluru',
-      quote: 'The 60-minute pacer bus in Cubbon Park was exceptional! He kept our pace rock steady, called out water stations 100 meters ahead, and brought our entire group home under 59 minutes.'
-    },
     {
       name: 'Priya Sundaram',
       category: 'Family 1K Fun Run',
       city: 'Chennai',
       quote: 'Loved bringing my 8-year-old daughter for her very first organized run in Besant Nagar. Safe traffic-free roads, friendly volunteers cheering her name, and gorgeous medals we will treasure.'
-    },
-    {
-      name: 'Arun Varma',
-      category: '21K Half Marathon',
-      city: 'Kochi',
-      quote: 'The waterfront route in Kochi was breathtaking. Water stations were cleanly managed with zero litter on the road, and the hot traditional breakfast at the finish arch was the best reward.'
-    },
-    {
-      name: 'Dr. Meera Nambiar',
-      category: '5K Fitness Stride',
-      city: 'Coimbatore',
-      quote: 'As a physician, I recommend India Runtrust events to all my patients. There is no elitist intimidation — everyone from fast sprinters to brisk walkers feels respected and celebrated.'
     }
   ];
 
@@ -187,9 +149,7 @@ export default function Community() {
       <section className="page-hero">
         <div
           className="page-hero-bg"
-          style={{
-            backgroundImage: "url('https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1600&q=80')"
-          }}
+          style={{ backgroundImage: `url('${IMG_HERO_BG}')` }}
         />
         <div className="page-hero-inner">
           {/* LEFT */}
@@ -202,7 +162,7 @@ export default function Community() {
               Run Together.<br /><span>Grow Together.</span>
             </h1>
             <p className="page-hero-subtitle">
-              A vibrant community of weekend walkers, fitness enthusiasts, volunteer pacers, and seasoned marathoners cheering each other on across South India.
+              A vibrant community of weekend walkers, fitness enthusiasts, volunteer pacers, and seasoned marathoners cheering each other on in Chennai.
             </p>
             <div className="page-hero-actions">
               <Link to="/register" className="btn btn-primary btn-large">
@@ -214,7 +174,7 @@ export default function Community() {
               </a>
             </div>
             <div className="page-hero-highlights">
-              <span className="page-hero-highlight"><FaCircleCheck /> 4 City Hubs</span>
+              <span className="page-hero-highlight"><FaCircleCheck /> Chennai Hub</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Free Weekly Shakeout Runs</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Certified Pacer Squad</span>
             </div>
@@ -223,35 +183,38 @@ export default function Community() {
           {/* RIGHT */}
           <div className="page-hero-image-wrap">
             <div className="page-hero-stat-card">
-              <span className="stat-num">500+</span>
+              <span className="stat-num">180+</span>
               <span className="stat-label">Active Runners</span>
             </div>
             <div className="page-hero-image-frame">
               <img
-                src="https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=800&q=80"
-                alt="Community runners celebrating together"
+                src={IMG_HERO_SIDE}
+                alt="Marathon runners in Chennai"
                 className="page-hero-img"
               />
               <div className="page-hero-img-caption">
-                <FaLocationDot /> Community Stride Network
+                <FaLocationDot /> Chennai
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── CITY CHAPTERS (WEEKLY MEETUPS) ── */}
+      {/* ── CHENNAI CHAPTER (WEEKLY MEETUPS) ── */}
       <section id="chapters" className="section">
         <div className="content-container">
           <div className="section-header">
-            <span className="section-eyebrow">Local Running Hubs</span>
-            <h2 className="section-title">City Running Chapters</h2>
+            <span className="section-eyebrow">Local Running Hub</span>
+            <h2 className="section-title">Chennai Running Chapter</h2>
             <p className="section-subtitle">
               Join free weekly weekend morning shakeout runs. All fitness levels and paces are warmly welcomed.
             </p>
           </div>
 
-          <div className="chapters-grid">
+          <div
+            className="chapters-grid"
+            style={{ gridTemplateColumns: 'minmax(280px, 560px)', justifyContent: 'center' }}
+          >
             {cityChapters.map((ch, idx) => (
               <div key={idx} className="chapter-card">
                 <div className="chapter-city-header">
@@ -391,7 +354,10 @@ export default function Community() {
             </p>
           </div>
 
-          <div className="testimonials-grid">
+          <div
+            className="testimonials-grid"
+            style={{ gridTemplateColumns: 'minmax(280px, 640px)', justifyContent: 'center' }}
+          >
             {testimonials.map((t, idx) => (
               <div key={idx} className="testimonial-card">
                 <FaQuoteLeft className="testimonial-quote-icon" />
@@ -408,7 +374,7 @@ export default function Community() {
           <div className="community-cta-banner">
             <div className="community-cta-text">
               <h3>Become Part of the Next Running Chapter</h3>
-              <p>Reserve your bib number today and join our expanding community of active runners across South India.</p>
+              <p>Reserve your bib number today and join our expanding community of active runners in Chennai.</p>
             </div>
             <Link to="/register" className="btn btn-primary btn-large">
               <span>REGISTER NOW</span>
