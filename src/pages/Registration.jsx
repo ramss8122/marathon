@@ -737,17 +737,7 @@ export default function Registration() {
           </h4>
         </div>
 
-        {idx > 0 && (
-          <label style={sameBoxStyle}>
-            <input
-              type="checkbox"
-              className="form-checkbox"
-              checked={raw.sameAsFirst}
-              onChange={(e) => handleSameAsFirst(item.instanceId, e.target.checked)}
-            />
-            <span>Same person as Participant 1 (copy all details from above)</span>
-          </label>
-        )}
+       
 
         {input('fullName', 'Full Name (The same shall be used to display in Bib & E-Certificate)', 'text', 'e.g. Ananya Raman')}
 
@@ -878,7 +868,7 @@ export default function Registration() {
       </div>
 
       <h4 style={{ margin: '1.25rem 0 0.5rem', fontSize: '0.95rem', fontWeight: 700 }}>
-        Apply Discount / Access Code
+        Have a coupon code?
       </h4>
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <input
@@ -1181,14 +1171,7 @@ export default function Registration() {
 
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <form className="site-form" onSubmit={handleSubmit} noValidate>
-                          {totalTickets > 1 && (
-                            <div style={copyBannerStyle}>
-                              <span>Same person attending all races / tickets? Fill Participant 1 and copy to all.</span>
-                              <button type="button" className="btn btn-primary btn-sm" onClick={handleCopyToAll}>
-                                <span>Copy Details to All</span>
-                              </button>
-                            </div>
-                          )}
+                         
 
                           {ticketItems.map((item, idx) => renderParticipant(item, idx))}
 
