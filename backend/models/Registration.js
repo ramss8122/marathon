@@ -42,6 +42,66 @@ const registrationSchema = new mongoose.Schema({
     default: 'Tamil Nadu',
     trim: true
   },
+  whatsappNumber: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  organisation: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  designation: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  tshirtSize: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  bloodGroup: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  address: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  pincode: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  country: {
+    type: String,
+    default: 'India',
+    trim: true
+  },
+  facebookLink: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  instagramLink: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  hearAbout: {
+    type: String,
+    default: '',
+    trim: true
+  },
+  runningGroup: {
+    type: String,
+    default: '',
+    trim: true
+  },
   raceCategory: {
     type: String,
     required: true
@@ -95,10 +155,41 @@ const registrationSchema = new mongoose.Schema({
     type: String,
     default: ''
   },
+  groupId: {
+    type: String,
+    default: '',
+    index: true
+  },
+  orderId: {
+    type: String,
+    default: '',
+    index: true
+  },
   createdAt: {
     type: Date,
     default: Date.now,
     index: true
+  },
+  // ── Ticket / Bib fields (added for race ticket generation) ──
+  bibNumber: {
+    type: String,
+    default: ''
+  },
+  eventDate: {
+    type: String,
+    default: ''
+  },
+  eventVenue: {
+    type: String,
+    default: ''
+  },
+  flagOffTime: {
+    type: String,
+    default: ''
+  },
+  gatesOpenTime: {
+    type: String,
+    default: ''
   }
 });
 

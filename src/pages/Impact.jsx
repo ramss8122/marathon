@@ -135,22 +135,27 @@ export default function Impact() {
           </div>
 
           {/* RIGHT */}
-          <div className="page-hero-image-wrap">
-            <div className="page-hero-stat-card">
-              <span className="stat-num">2,500+</span>
-              <span className="stat-label">Trees Planted</span>
-            </div>
-            <div className="page-hero-image-frame">
-              <img
-  src="https://images.unsplash.com/photo-1502904550843-1bed1d2bfc97?auto=format&fit=crop&w=800&q=80"
-  alt="Marathon participants running together"
-  className="about-feature-img"
-/>
-              <div className="page-hero-img-caption">
-                <FaLocationDot /> Grassroots Wellness Movement
-              </div>
-            </div>
-          </div>
+          
+<div className="page-hero-image-wrap">
+  <div className="page-hero-stat-card">
+    <span className="stat-num">2,500+</span>
+    <span className="stat-label">Trees Planted</span>
+  </div>
+
+  <div className="page-hero-image-frame">
+    <img
+      src="https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=1200&q=85"
+      alt="Marathon runners running together in a race"
+      className="about-feature-img"
+      loading="lazy"
+    />
+
+    <div className="page-hero-img-caption">
+      <FaLocationDot /> Grassroots Wellness Movement
+    </div>
+  </div>
+</div>
+
         </div>
       </section>
 

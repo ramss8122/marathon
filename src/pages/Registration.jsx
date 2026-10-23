@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, useParams, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import {
   FaCircleCheck,
   FaCircleExclamation,
@@ -10,9 +10,13 @@ import {
   FaCheck,
   FaXmark,
   FaCalendarDays,
-  FaClock
+  FaClock,
+  FaLocationDot,
+  FaPersonRunning,
+  FaArrowDown
 } from 'react-icons/fa6';
 import { RACE_PACKAGES, UPCOMING_EVENTS } from '../data/marathonData';
+import chennaiImg from '../assets/chennai.png';
 
 // Chennai events mattum
 const CHENNAI_EVENTS = UPCOMING_EVENTS.filter(
@@ -69,10 +73,76 @@ const formatTimer = (secs) => {
 };
 
 export default function Registration() {
+  const { slug } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const initialPkgParam = searchParams.get('package') || searchParams.get('packages');
+  // Multi-city states
+  const [availableCities, setAvailableCities] = useState([]);
+  const [isLoadingCities, setIsLoadingCities] = useState(false);
+  const [selectedCitySlug, setSelectedCitySlug] = useState('chennai');
+  const [cityData, setCityData] = useState(null);
+  // FIX: start as "loading" when a slug is present, so the page never flashes empty data
+  const [isLoadingCityData, setIsLoadingCityData] = useState(!!slug);
+
+  // Fetch active cities if on /register (no slug)
+  useEffect(() => {
+    if (!slug) {
+      setIsLoadingCities(true);
+      fetch('/api/cities')
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.success && Array.isArray(data.data) && data.data.length > 0) {
+            const active = data.data.filter((c) => c.isActive !== false);
+            setAvailableCities(active);
+            if (active.length > 0) {
+              setSelectedCitySlug(active[0].slug);
+            }
+          } else {
+            setAvailableCities([]);
+          }
+        })
+        .catch(() => {
+          setAvailableCities([]);
+        })
+        .finally(() => setIsLoadingCities(false));
+    }
+  }, [slug]);
+
+  // Fetch city by slug if on /register/:slug
+  useEffect(() => {
+    if (slug) {
+      setIsLoadingCityData(true);
+      fetch(`/api/cities/${slug}`)
+        .then((res) => {
+          if (!res.ok) throw new Error('City not found');
+          return res.json();
+        })
+        .then((data) => {
+          if (data?.success && data.data && data.data.isActive !== false) {
+            setCityData(data.data);
+            setSelectedCitySlug(data.data.slug);
+            localStorage.setItem('selectedCity', data.data.slug);
+          } else {
+            // FIX: invalid slug or inactive city -> go to the Events page
+            navigate('/events', { replace: true });
+          }
+        })
+        .catch(() => {
+          // FIX: city not found -> go to the Events page
+          navigate('/events', { replace: true });
+        })
+        .finally(() => setIsLoadingCityData(false));
+    } else {
+      setCityData(null);
+    }
+  }, [slug, navigate]);
+
+  const initialPkgParam =
+    searchParams.get('package') || searchParams.get('packages') || searchParams.get('category');
   const initialEventParam = searchParams.get('event');
+  const initialStepParam = searchParams.get('step');
 
   const getInitialQuantities = () => {
     const q = {};
@@ -95,8 +165,15 @@ export default function Registration() {
     selectedEvent: defaultEvent.id
   });
 
-  // step: 'pick' (choose tickets) -> 'details' (participant forms)
-  const [step, setStep] = useState('pick');
+  // step: 'event' (city cards) -> 'pick' (choose tickets) -> 'details' (participant forms)
+  // FIX: when the URL has a city slug (/register/:slug), start directly on the Pick Tickets page
+  const [step, setStep] = useState(() => {
+    if (initialStepParam === 'details') return 'details';
+    if (slug) return 'pick';
+    if (initialStepParam === 'pick') return 'pick';
+    if (initialPkgParam) return 'pick';
+    return 'event';
+  });
   const [secondsLeft, setSecondsLeft] = useState(HOLD_SECONDS);
   const [timeUp, setTimeUp] = useState(false);
 
@@ -140,6 +217,18 @@ export default function Registration() {
     setFormData(prev => ({ ...prev, selectedCategories: activeIds }));
   }, [ticketQuantities]);
 
+  // FIX: with a city slug in the URL we must stay on the Pick Tickets page.
+  // Without a slug (/register), fall back to the city cards step.
+  useEffect(() => {
+    if (slug) {
+      setStep((prev) => (prev === 'event' ? 'pick' : prev));
+      return;
+    }
+    if (!initialPkgParam && !searchParams.get('step')) {
+      setStep('event');
+    }
+  }, [location.key, slug]);
+
   // Countdown while on details step
   useEffect(() => {
     if (step !== 'details' || isSubmitted) return undefined;
@@ -178,7 +267,27 @@ export default function Registration() {
   const firstItem = ticketItems[0];
   const firstPkg = selectedPackages[0];
   const eventInfo = EVENT_LIST.find(e => e.id === formData.selectedEvent) || EVENT_LIST[0];
-  const eventName = eventInfo?.city || 'Chennai';
+
+  // FIX: header data comes from the city in the URL (no hard-coded Chennai fallback)
+  const eventName = cityData?.name || eventInfo?.city || '';
+  const eventDate = cityData?.eventDate || cityData?.date || eventInfo?.date || '';
+  const cityFlagOff = cityData?.flagOffTime || cityData?.time || '';
+  const eventTime = cityData
+    ? (cityData.gatesOpenTime ? `${cityFlagOff} (Gates Open ${cityData.gatesOpenTime})` : cityFlagOff)
+    : (eventInfo?.time || '');
+  const eventVenue = cityData?.venue || eventInfo?.location || '';
+  const eventBadge = cityData?.badgeText || 'Certified coastal course';
+  const eventImage = cityData?.imageUrl || '/assets/chennai.png';
+
+  // FIX: show only the categories offered by this city
+  const visiblePackages =
+    cityData?.categories?.length
+      ? RACE_PACKAGES.filter((p) =>
+          cityData.categories
+            .map((c) => String(c).toLowerCase())
+            .includes(String(p.id).toLowerCase())
+        )
+      : RACE_PACKAGES;
 
   const subTotal = RACE_PACKAGES.reduce((acc, p) => {
     const qty = ticketQuantities[p.id] || 0;
@@ -405,7 +514,7 @@ export default function Registration() {
         tshirtSize: d.tshirtSize,
         bloodGroup: d.bloodGroup,
         address: d.address,
-        city: d.city,
+        city: d.city || eventName,
         state: d.state,
         pincode: d.pincode,
         country: d.country,
@@ -420,7 +529,8 @@ export default function Registration() {
         distance: item.pkg.distance,
         amount: amountFor(item.pkg),
         discountCode: appliedCode ? appliedCode.code : '',
-        selectedEvent: formData.selectedEvent,
+        // FIX: send the city slug so the backend can look up the correct city
+        selectedEvent: cityData?.slug || formData.selectedEvent,
         paymentMethod: 'Online'
       };
 
@@ -466,7 +576,8 @@ export default function Registration() {
     setRegisteredRefs({});
     setSubmitError('');
     setPickError('');
-    setStep('pick');
+    // FIX: stay on the Pick Tickets page when the city is in the URL
+    setStep(slug ? 'pick' : 'event');
     setCodeInput('');
     setAppliedCode(null);
     setCodeMsg('');
@@ -737,8 +848,6 @@ export default function Registration() {
           </h4>
         </div>
 
-       
-
         {input('fullName', 'Full Name (The same shall be used to display in Bib & E-Certificate)', 'text', 'e.g. Ananya Raman')}
 
         <div className="form-row-2">
@@ -919,305 +1028,454 @@ export default function Registration() {
     </div>
   );
 
-  return (
-    <div className="page-wrapper registration-page">
-      {/* Makes the right summary card sticky (left side scrolls alone) */}
-      <style>{`
-        .registration-page,
-        .registration-page .registration-section,
-        .registration-page .content-container,
-        .registration-page .registration-layout-grid {
-          overflow-x: clip !important;
-          overflow-y: visible !important;
-        }
-        .registration-page .registration-layout-grid { align-items: stretch !important; }
-        .registration-page .registration-summary-panel { align-self: stretch !important; }
-        .registration-page .sticky-summary-card {
-          position: sticky !important;
-          top: 100px !important;
-          max-height: calc(100vh - 120px);
-          overflow-y: auto;
-        }
-        @media (max-width: 991px) {
-          .registration-page .sticky-summary-card {
-            position: static !important;
-            max-height: none;
-          }
-        }
-        @media (max-width: 767px) {
-          .registration-page .reg-rail { display: none !important; }
-        }
-      `}</style>
+  // Navbar Register Now should open the Events page.
+  // Keep direct city registration URLs (/register/:slug) and package query URLs working.
+  if (!slug && !searchParams.get('package') && !searchParams.get('packages') &&
+      !searchParams.get('category') && !searchParams.get('event') && !searchParams.get('step')) {
+    return <Navigate to="/events" replace />;
+  }
 
-      {/* Page Header */}
-      <section className="page-banner">
-        <div className="content-container">
-          <div className="page-banner-content">
-            <div className="page-badge">
-              <FaIdCard className="page-badge-icon" />
-              <span>Official Runner Portal</span>
-            </div>
-            <h1 className="page-title">INDIA RUNTRUST Registration</h1>
-            <p className="page-subtitle">
-              Secure your official race bibs. Add one or more tickets, then enter each participant's details.
-            </p>
+  // ── Render Loading Screen when fetching City by Slug ──
+  if (isLoadingCityData && !cityData) {
+    return (
+      <div className="page-wrapper registration-page">
+        <div className="ticket-stage-wrapper">
+          <div style={{ textAlign: 'center', color: '#A51C1F', padding: '3rem 1rem' }}>
+            <p style={{ fontWeight: 700, fontSize: '1.2rem' }}>Loading event details...</p>
           </div>
         </div>
-      </section>
+      </div>
+    );
+  }
 
-      <section className="section registration-section">
-        <div className="content-container">
-          {isSubmitted ? (
-            /* SUCCESS CONFIRMATION */
-            <div className="registration-success-wrapper">
-              <div className="registration-success-card">
-                <div className="success-header">
-                  <div className="success-icon-wrap large">
-                    <FaCircleCheck />
+  return (
+    <div className="page-wrapper registration-page">
+      {step === 'event' ? (
+        /* ── STEP 1: TICKET-STYLE CITY CARDS (ONE PER ACTIVE CITY) ── */
+        <div className="ticket-stage-wrapper">
+          <div className="ticket-stage-container">
+
+            {/* Loading skeleton */}
+            {isLoadingCities && (
+              <div style={{ textAlign: 'center', color: '#A51C1F', padding: '3rem 1rem' }}>
+                <p style={{ fontWeight: 700, fontSize: '1.2rem' }}>Loading events...</p>
+              </div>
+            )}
+
+            {/* No active cities */}
+            {!isLoadingCities && availableCities.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                <p style={{ fontWeight: 700, fontSize: '1.2rem', color: '#A51C1F' }}>Registrations are not open yet.</p>
+                <p style={{ opacity: 0.7, fontSize: '0.95rem', marginTop: '0.5rem' }}>Please check back later for upcoming events.</p>
+              </div>
+            )}
+
+            {/* One card per active city */}
+            {!isLoadingCities && availableCities.map((city) => {
+              const cName = city.name || 'Event';
+              const cDate = city.eventDate || city.date || '';
+              const cFlagOff = city.flagOffTime || city.time || '';
+              const cGatesOpen = city.gatesOpenTime || '';
+              const cTimeDisplay = cGatesOpen ? `${cFlagOff} (Gates Open ${cGatesOpen})` : cFlagOff;
+              const cVenue = city.venue || '';
+              const cImage = city.imageUrl || '/assets/chennai.png';
+              const cBadge = city.badgeText || 'Certified course';
+
+              return (
+                <div className="ticket-card" key={city.slug || city._id} style={{ marginBottom: '2rem' }}>
+                  {/* Semicircle notches */}
+                  <div className="ticket-notch ticket-notch-top" />
+                  <div className="ticket-notch ticket-notch-bottom" />
+                  <div className="ticket-notch ticket-notch-left" />
+                  <div className="ticket-notch ticket-notch-right" />
+
+                  {/* Vertical dashed white dividing line */}
+                  <div className="ticket-divider-line" />
+
+                  {/* Left Column (~50% width) */}
+                  <div className="ticket-col-left">
+                    <div className="ticket-img-frame">
+                      <img
+                        src={cImage}
+                        alt={`${cName} Marathon`}
+                        className="ticket-img"
+                        onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = chennaiImg; }}
+                      />
+                      <div className="ticket-badge-pill">
+                        <FaPersonRunning />
+                        <span>{cBadge}</span>
+                      </div>
+                    </div>
                   </div>
-                  <h2 className="success-main-title">Registration Confirmed!</h2>
-                  <p className="success-subtitle">
-                    {totalTickets} {totalTickets === 1 ? 'participant has' : 'participants have'} been successfully registered.
-                  </p>
-                </div>
 
-                <div className="registration-receipt-box">
-                  <div className="receipt-row">
-                    <span className="receipt-label">Target Event:</span>
-                    <span className="receipt-value">{eventName}</span>
-                  </div>
+                  {/* Right Column (~50% width) */}
+                  <div className="ticket-col-right">
+                    <div className="ticket-official-label">
+                      OFFICIAL {cName.toUpperCase()} EVENT
+                    </div>
+                    <h1 className="ticket-city-title">
+                      {cName}
+                    </h1>
 
-                  {ticketItems.map((item, idx) => {
-                    const d = getEffective(item, idx);
-                    return (
-                      <div key={item.instanceId} className="receipt-row" style={{ alignItems: 'flex-start' }}>
-                        <span className="receipt-label">Participant {idx + 1}:</span>
-                        <div className="receipt-value multi-categories-receipt">
-                          <span className="category-receipt-tag">
-                            <strong>{d.fullName}</strong> — {item.pkg.distance} {item.pkg.name} ({inr(amountFor(item.pkg))})
-                          </span>
-                          <span className="category-receipt-tag">
-                            Registration ID: <strong>{registeredRefs[item.instanceId]}</strong>
-                          </span>
-                          <span className="category-receipt-tag">
-                            {d.email} • {d.mobileNumber}
-                          </span>
+                    <div className="ticket-info-rows">
+                      <div className="ticket-info-row">
+                        <div className="ticket-row-icon-box">
+                          <FaCalendarDays />
+                        </div>
+                        <div className="ticket-row-texts">
+                          <span className="ticket-row-label">RACE DATE</span>
+                          <strong className="ticket-row-value">{cDate}</strong>
                         </div>
                       </div>
-                    );
-                  })}
 
-                  <div className="receipt-row">
-                    <span className="receipt-label">Total Registration Fee:</span>
-                    <span className="receipt-value fee-amount">{formattedTotalAmount}</span>
+                      <div className="ticket-info-row">
+                        <div className="ticket-row-icon-box">
+                          <FaClock />
+                        </div>
+                        <div className="ticket-row-texts">
+                          <span className="ticket-row-label">FLAG-OFF SCHEDULE</span>
+                          <strong className="ticket-row-value">{cTimeDisplay}</strong>
+                        </div>
+                      </div>
+
+                      <div className="ticket-info-row">
+                        <div className="ticket-row-icon-box">
+                          <FaLocationDot />
+                        </div>
+                        <div className="ticket-row-texts">
+                          <span className="ticket-row-label">STARTING VENUE</span>
+                          <strong className="ticket-row-value">{cVenue}</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      className="ticket-register-btn"
+                      onClick={() => {
+                        localStorage.setItem('selectedCity', city.slug);
+                        navigate(`/register/${city.slug}`);
+                      }}
+                    >
+                      <span>Register now</span>
+                      <FaArrowRight className="btn-arrow" />
+                    </button>
                   </div>
                 </div>
+              );
+            })}
 
-                <div className="demo-notice-alert">
-                  <FaShieldHalved className="alert-icon" />
-                  <p>
-                    <strong>Registration Verified:</strong> Confirmation details and runner bib pickup instructions have been queued for dispatch. Please present each Registration ID at the expo bib counter.
-                  </p>
-                </div>
+          </div>
+        </div>
+      ) : (
+        <>
+          {/* Makes the right summary card sticky (left side scrolls alone) */}
+          <style>{`
+            .registration-page,
+            .registration-page .registration-section,
+            .registration-page .content-container,
+            .registration-page .registration-layout-grid {
+              overflow-x: clip !important;
+              overflow-y: visible !important;
+            }
+            .registration-page .registration-layout-grid { align-items: stretch !important; }
+            .registration-page .registration-summary-panel { align-self: stretch !important; }
+            .registration-page .sticky-summary-card {
+              position: sticky !important;
+              top: 100px !important;
+              max-height: calc(100vh - 120px);
+              overflow-y: auto;
+            }
+            @media (max-width: 991px) {
+              .registration-page .sticky-summary-card {
+                position: static !important;
+                max-height: none;
+              }
+            }
+            @media (max-width: 767px) {
+              .registration-page .reg-rail { display: none !important; }
+            }
+          `}</style>
 
-                <div className="success-actions">
-                  <button type="button" onClick={handleResetForm} className="btn btn-secondary">
-                    <span>Register Another Participant</span>
-                  </button>
-                  <Link to="/events" className="btn btn-primary">
-                    <span>Explore More Events</span>
-                    <FaArrowRight className="btn-icon" />
-                  </Link>
+          {/* Page Header */}
+          <section className="page-banner">
+            <div className="content-container">
+              <div className="page-banner-content">
+                <div className="page-badge">
+                  <FaIdCard className="page-badge-icon" />
+                  <span>Official Runner Portal</span>
                 </div>
+                <h1 className="page-title">Register for {eventName}</h1>
+                <p className="page-subtitle">
+                  Secure your official race bibs. Add one or more tickets, then enter each participant's details.
+                </p>
               </div>
             </div>
-          ) : (
-            <>
-              {/* Top header: back arrow, name, date, timer */}
-              <div style={headerRowStyle}>
-                {step === 'pick' ? (
-                  <Link to="/events" style={backBtnStyle} aria-label="Back to events">
-                    <FaArrowLeft />
-                  </Link>
-                ) : (
-                  <button type="button" style={backBtnStyle} onClick={handleBackToPick} aria-label="Back to tickets">
-                    <FaArrowLeft />
-                  </button>
-                )}
-                <div>
-                  <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 700 }}>{eventName}</h2>
-                  <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', fontSize: '0.9rem', opacity: 0.75, marginTop: '0.25rem' }}>
-                    {eventInfo?.date && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <FaCalendarDays /> {eventInfo.date}
-                      </span>
-                    )}
-                    {eventInfo?.time && (
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                        <FaClock /> {eventInfo.time}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {step === 'details' && (
-                  <span style={timerBadgeStyle}>
-                    <FaClock /> Time Left: {formatTimer(secondsLeft)}
-                  </span>
-                )}
-              </div>
+          </section>
 
-              <div className="registration-layout-grid">
-                {/* Left Column */}
-                <div className="registration-form-panel">
-                  {step === 'pick' ? (
-                    /* ───── STEP 1: PICK TICKETS ───── */
-                    <div>
-                      {timeUp && (
-                        <div
-                          style={{
-                            marginBottom: '1rem',
-                            padding: '0.85rem 1.1rem',
-                            background: '#FEF2F2',
-                            border: '1px solid #F87171',
-                            borderRadius: '10px',
-                            color: '#991B1B',
-                            fontSize: '0.92rem'
-                          }}
-                        >
-                          Your time ran out. Please click <strong>Proceed</strong> again to continue (your entered details are saved).
-                        </div>
-                      )}
+          <section className="section registration-section">
+            <div className="content-container">
+              {isSubmitted ? (
+                /* SUCCESS CONFIRMATION */
+                <div className="registration-success-wrapper">
+                  <div className="registration-success-card">
+                    <div className="success-header">
+                      <div className="success-icon-wrap large">
+                        <FaCircleCheck />
+                      </div>
+                      <h2 className="success-main-title">Registration Confirmed!</h2>
+                      <p className="success-subtitle">
+                        {totalTickets} {totalTickets === 1 ? 'participant has' : 'participants have'} been successfully registered.
+                      </p>
+                    </div>
 
-                      <h3 className="form-section-title" style={{ marginBottom: '1rem' }}>
-                        <span className="section-number-pill">1</span> Pick Tickets
-                      </h3>
+                    <div className="registration-receipt-box">
+                      <div className="receipt-row">
+                        <span className="receipt-label">Target Event:</span>
+                        <span className="receipt-value">{eventName}</span>
+                      </div>
 
-                      {RACE_PACKAGES.map((pkg) => {
-                        const qty = ticketQuantities[pkg.id] || 0;
-                        const isAdded = qty > 0;
+                      {ticketItems.map((item, idx) => {
+                        const d = getEffective(item, idx);
                         return (
-                          <div key={pkg.id} style={ticketCardStyle}>
-                            <div style={{ flex: '1 1 260px', minWidth: 0 }}>
-                              <div style={{ fontWeight: 700, fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
-                                {pkg.distance} — {pkg.name}
-                              </div>
-                              <p style={{ margin: '0.4rem 0 0', fontSize: '0.88rem', lineHeight: 1.5, opacity: 0.85 }}>
-                                {pkg.description}
-                              </p>
-                              {pkg.includes && pkg.includes.length > 0 && (
-                                <p style={{ margin: '0.4rem 0 0', fontSize: '0.8rem', opacity: 0.7 }}>
-                                  <strong>Includes:</strong> {pkg.includes.join(' • ')}
-                                </p>
-                              )}
-                              <div style={{ marginTop: '0.75rem', fontSize: '1.4rem', fontWeight: 700 }}>
-                                {pkg.formattedPrice}
-                              </div>
-                            </div>
-
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
-                              {isAdded ? (
-                                <>
-                                  <button
-                                    type="button"
-                                    style={roundBtnStyle(false)}
-                                    onClick={() => handleDecreaseQuantity(pkg.id)}
-                                    aria-label={`Decrease quantity for ${pkg.name}`}
-                                  >
-                                    −
-                                  </button>
-                                  <span style={{ fontWeight: 700, minWidth: '24px', textAlign: 'center', fontSize: '1rem' }}>
-                                    {qty}
-                                  </span>
-                                  <button
-                                    type="button"
-                                    style={roundBtnStyle(false)}
-                                    onClick={() => handleIncreaseQuantity(pkg.id)}
-                                    aria-label={`Increase quantity for ${pkg.name}`}
-                                  >
-                                    +
-                                  </button>
-                                </>
-                              ) : (
-                                <button
-                                  type="button"
-                                  className="btn btn-primary btn-sm"
-                                  style={{ minWidth: '96px', justifyContent: 'center' }}
-                                  onClick={() => handleIncreaseQuantity(pkg.id)}
-                                >
-                                  <span>Add</span>
-                                </button>
-                              )}
+                          <div key={item.instanceId} className="receipt-row" style={{ alignItems: 'flex-start' }}>
+                            <span className="receipt-label">Participant {idx + 1}:</span>
+                            <div className="receipt-value multi-categories-receipt">
+                              <span className="category-receipt-tag">
+                                <strong>{d.fullName}</strong> — {item.pkg.distance} {item.pkg.name} ({inr(amountFor(item.pkg))})
+                              </span>
+                              <span className="category-receipt-tag">
+                                Registration ID: <strong>{registeredRefs[item.instanceId]}</strong>
+                              </span>
+                              <span className="category-receipt-tag">
+                                {d.email} • {d.mobileNumber}
+                              </span>
                             </div>
                           </div>
                         );
                       })}
-                    </div>
-                  ) : (
-                    /* ───── STEP 2: PARTICIPANT DETAILS ───── */
-                    <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'stretch' }}>
-                      <div className="reg-rail" style={railStyle}>
-                        <button
-                          type="button"
-                          onClick={handleBackToPick}
-                          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}
-                        >
-                          <span style={railCircleStyle(true)}><FaCheck /></span>
-                          <span>Pick Tickets</span>
-                        </button>
-                        <div style={railLineStyle} />
-                        <span style={railCircleStyle(false)}>2</span>
-                        <span>Attendee Details</span>
+
+                      <div className="receipt-row">
+                        <span className="receipt-label">Total Registration Fee:</span>
+                        <span className="receipt-value fee-amount">{formattedTotalAmount}</span>
                       </div>
+                    </div>
 
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <form className="site-form" onSubmit={handleSubmit} noValidate>
-                         
+                    <div className="demo-notice-alert">
+                      <FaShieldHalved className="alert-icon" />
+                      <p>
+                        <strong>Registration Verified:</strong> Confirmation details and runner bib pickup instructions have been queued for dispatch. Please present each Registration ID at the expo bib counter.
+                      </p>
+                    </div>
 
-                          {ticketItems.map((item, idx) => renderParticipant(item, idx))}
+                    <div className="success-actions">
+                      <button type="button" onClick={handleResetForm} className="btn btn-secondary">
+                        <span>Register Another Participant</span>
+                      </button>
+                      <Link to="/events" className="btn btn-primary">
+                        <span>Explore More Events</span>
+                        <FaArrowRight className="btn-icon" />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Top header: back arrow, name, date, timer */}
+                  <div style={headerRowStyle}>
+                    {step === 'pick' ? (
+                      <button
+                        type="button"
+                        style={backBtnStyle}
+                        onClick={() => {
+                          // FIX: back arrow goes to the Events page
+                          navigate('/events');
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }}
+                        aria-label="Back to events"
+                      >
+                        <FaArrowLeft />
+                      </button>
+                    ) : (
+                      <button type="button" style={backBtnStyle} onClick={handleBackToPick} aria-label="Back to tickets">
+                        <FaArrowLeft />
+                      </button>
+                    )}
+                    <div>
+                      <h2 style={{ margin: 0, fontSize: '1.6rem', fontWeight: 700 }}>{eventName}</h2>
+                      <div style={{ display: 'flex', gap: '1.25rem', flexWrap: 'wrap', fontSize: '0.9rem', opacity: 0.85, marginTop: '0.35rem' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <FaCalendarDays style={{ color: '#9E1B22' }} /> {eventDate}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <FaClock style={{ color: '#9E1B22' }} /> {eventTime}
+                        </span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+                          <FaLocationDot style={{ color: '#9E1B22' }} /> {eventVenue}
+                        </span>
+                      </div>
+                    </div>
+                    {step === 'details' && (
+                      <span style={timerBadgeStyle}>
+                        <FaClock /> Time Left: {formatTimer(secondsLeft)}
+                      </span>
+                    )}
+                  </div>
 
-                          {submitError && (
+                  <div className="registration-layout-grid">
+                    {/* Left Column */}
+                    <div className="registration-form-panel">
+                      {step === 'pick' ? (
+                        /* ───── STEP 1: PICK TICKETS ───── */
+                        <div>
+                          {timeUp && (
                             <div
                               style={{
-                                marginBottom: '1.25rem',
-                                padding: '0.85rem 1.15rem',
-                                backgroundColor: '#FEF2F2',
+                                marginBottom: '1rem',
+                                padding: '0.85rem 1.1rem',
+                                background: '#FEF2F2',
                                 border: '1px solid #F87171',
-                                borderRadius: '8px',
+                                borderRadius: '10px',
                                 color: '#991B1B',
-                                fontSize: '0.92rem',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.65rem'
+                                fontSize: '0.92rem'
                               }}
                             >
-                              <FaCircleExclamation style={{ flexShrink: 0 }} />
-                              <span>{submitError}</span>
+                              Your time ran out. Please click <strong>Proceed</strong> again to continue (your entered details are saved).
                             </div>
                           )}
 
-                          <button
-                            type="submit"
-                            className="btn btn-primary btn-block btn-large submit-reg-btn"
-                            disabled={isSubmitting}
-                          >
-                            <span>{isSubmitting ? 'PROCESSING REGISTRATION...' : `COMPLETE REGISTRATION (${formattedTotalAmount})`}</span>
-                            <FaArrowRight className="btn-icon" />
-                          </button>
-                        </form>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                          <h3 className="form-section-title" style={{ marginBottom: '1rem' }}>
+                            <span className="section-number-pill">1</span> Pick Tickets
+                          </h3>
 
-                {/* Right Column: Sticky Ticket Summary */}
-                <div className="registration-summary-panel">
-                  {renderSummary()}
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-      </section>
+                          {/* FIX: only the categories offered by this city */}
+                          {visiblePackages.map((pkg) => {
+                            const qty = ticketQuantities[pkg.id] || 0;
+                            const isAdded = qty > 0;
+                            return (
+                              <div key={pkg.id} style={ticketCardStyle}>
+                                <div style={{ flex: '1 1 260px', minWidth: 0 }}>
+                                  <div style={{ fontWeight: 700, fontSize: '1rem', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                                    {pkg.distance} — {pkg.name}
+                                  </div>
+                                  <p style={{ margin: '0.4rem 0 0', fontSize: '0.88rem', lineHeight: 1.5, opacity: 0.85 }}>
+                                    {pkg.description}
+                                  </p>
+                                  {pkg.includes && pkg.includes.length > 0 && (
+                                    <p style={{ margin: '0.4rem 0 0', fontSize: '0.8rem', opacity: 0.7 }}>
+                                      <strong>Includes:</strong> {pkg.includes.join(' • ')}
+                                    </p>
+                                  )}
+                                  <div style={{ marginTop: '0.75rem', fontSize: '1.4rem', fontWeight: 700 }}>
+                                    {pkg.formattedPrice}
+                                  </div>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                                  {isAdded ? (
+                                    <>
+                                      <button
+                                        type="button"
+                                        style={roundBtnStyle(false)}
+                                        onClick={() => handleDecreaseQuantity(pkg.id)}
+                                        aria-label={`Decrease quantity for ${pkg.name}`}
+                                      >
+                                        −
+                                      </button>
+                                      <span style={{ fontWeight: 700, minWidth: '24px', textAlign: 'center', fontSize: '1rem' }}>
+                                        {qty}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        style={roundBtnStyle(false)}
+                                        onClick={() => handleIncreaseQuantity(pkg.id)}
+                                        aria-label={`Increase quantity for ${pkg.name}`}
+                                      >
+                                        +
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      className="btn btn-primary btn-sm"
+                                      style={{ minWidth: '96px', justifyContent: 'center' }}
+                                      onClick={() => handleIncreaseQuantity(pkg.id)}
+                                    >
+                                      <span>Add</span>
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        /* ───── STEP 2: PARTICIPANT DETAILS ───── */
+                        <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'stretch' }}>
+                          <div className="reg-rail" style={railStyle}>
+                            <button
+                              type="button"
+                              onClick={handleBackToPick}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, color: 'inherit', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem' }}
+                            >
+                              <span style={railCircleStyle(true)}><FaCheck /></span>
+                              <span>Pick Tickets</span>
+                            </button>
+                            <div style={railLineStyle} />
+                            <span style={railCircleStyle(false)}>2</span>
+                            <span>Attendee Details</span>
+                          </div>
+
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <form className="site-form" onSubmit={handleSubmit} noValidate>
+
+                              {ticketItems.map((item, idx) => renderParticipant(item, idx))}
+
+                              {submitError && (
+                                <div
+                                  style={{
+                                    marginBottom: '1.25rem',
+                                    padding: '0.85rem 1.15rem',
+                                    backgroundColor: '#FEF2F2',
+                                    border: '1px solid #F87171',
+                                    borderRadius: '8px',
+                                    color: '#991B1B',
+                                    fontSize: '0.92rem',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.65rem'
+                                  }}
+                                >
+                                  <FaCircleExclamation style={{ flexShrink: 0 }} />
+                                  <span>{submitError}</span>
+                                </div>
+                              )}
+
+                              <button
+                                type="submit"
+                                className="btn btn-primary btn-block btn-large submit-reg-btn"
+                                disabled={isSubmitting}
+                              >
+                                <span>{isSubmitting ? 'PROCESSING REGISTRATION...' : `COMPLETE REGISTRATION (${formattedTotalAmount})`}</span>
+                                <FaArrowRight className="btn-icon" />
+                              </button>
+                            </form>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Right Column: Sticky Ticket Summary */}
+                    <div className="registration-summary-panel">
+                      {renderSummary()}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </section>
+        </>
+      )}
     </div>
   );
 }

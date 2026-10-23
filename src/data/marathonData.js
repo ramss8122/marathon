@@ -54,14 +54,14 @@ export const RACE_PACKAGES = [
 export const UPCOMING_EVENTS = [
   {
     id: 'chennai-coastal-run',
-    name: 'Chennai Coastal Sunrise Run',
+    name: 'Chennai',
     city: 'Chennai',
     location: 'Besant Nagar Promenade, Chennai',
     date: 'Sunday, 15 Nov 2026',
-    time: '5:30 AM IST',
+    time: '5:30 AM IST (Gates Open 4:30 AM)',
     distances: ['1K', '3K', '5K', '10K', '21K'],
-    image: 'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80',
-    description: 'Breathe in the morning ocean breeze as you run along Chennai scenic eastern coastline with vibrant cheering zones.'
+    image: 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=1200&q=80',
+    description: 'Experience the excitement of marathon running in Chennai, bringing runners together for a memorable sporting event.'
   },
   {
     id: 'coimbatore-hills-run',

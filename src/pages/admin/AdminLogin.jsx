@@ -26,14 +26,7 @@ export default function AdminLogin() {
   useEffect(() => {
     const token = localStorage.getItem('adminToken');
     if (token) {
-      // Verify the token is real (not a dev token) before redirecting
-      if (!token.startsWith('dev-token-')) {
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        // Remove stale dev tokens
-        localStorage.removeItem('adminToken');
-        localStorage.removeItem('adminUser');
-      }
+      navigate('/admin/dashboard', { replace: true });
     }
 
     // Check backend health
@@ -185,7 +178,7 @@ export default function AdminLogin() {
           <div className="admin-security-note">
             <FaShieldHalved className="sec-icon" />
             <p>
-              <strong>Restricted Access:</strong> This portal is for authorized RUNORA administrators only.
+              <strong>Restricted Access:</strong> This portal is for authorized RUNTRUST administrators only.
               Unauthorized access attempts are logged and may be prosecuted.
             </p>
           </div>

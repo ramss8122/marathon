@@ -1,0 +1,310 @@
+/* ============================================
+   CityTicketCard – Vertical Red Ticket Card
+   ============================================ */
+
+.ctc-card {
+  position: relative;
+  background-color: #A51C1F;
+  border-radius: 16px;
+  box-shadow: 0 16px 40px rgba(165, 28, 31, 0.30);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  animation: ctcFadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+  height: 100%;
+}
+
+/* ── Image Section ── */
+.ctc-image-wrap {
+  position: relative;
+  width: 100%;
+  padding: 1.25rem 1.25rem 0 1.25rem;
+  box-sizing: border-box;
+}
+
+.ctc-image-frame {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  background-color: #241113;
+}
+
+.ctc-image-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ctc-badge {
+  position: absolute;
+  bottom: 0.85rem;
+  left: 0.85rem;
+  background: rgba(14, 10, 12, 0.85);
+  backdrop-filter: blur(6px);
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  z-index: 4;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Horizontal Dashed Divider with side notches ── */
+.ctc-divider-row {
+  position: relative;
+  width: 100%;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+/* The dashed line itself */
+.ctc-divider-line {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  right: 14px;
+  height: 0;
+  border-top: 2px dashed rgba(255, 255, 255, 0.45);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+/* Side notches on the divider row */
+.ctc-notch {
+  position: absolute;
+  background-color: #FAF5EE;
+  z-index: 10;
+}
+
+.ctc-notch-left {
+  left: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 26px;
+  border-top-right-radius: 26px;
+  border-bottom-right-radius: 26px;
+}
+
+.ctc-notch-right {
+  right: -1px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 14px;
+  height: 26px;
+  border-top-left-radius: 26px;
+  border-bottom-left-radius: 26px;
+}
+
+/* ── Info Section (below divider) ── */
+.ctc-info {
+  padding: 0.25rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  color: #FFFFFF;
+}
+
+.ctc-official-label {
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 0.25rem;
+}
+
+.ctc-city-title {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(1.7rem, 3vw, 2.2rem);
+  font-weight: 700;
+  color: #FFFFFF;
+  line-height: 1.1;
+  margin: 0 0 1rem 0;
+}
+
+/* Info rows */
+.ctc-info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  margin-bottom: 1.25rem;
+}
+
+.ctc-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.ctc-row-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.16);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFFFFF;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.ctc-row-texts {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.ctc-row-label {
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.ctc-row-value {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  line-height: 1.25;
+}
+
+/* ── Register Button ── */
+.ctc-register-btn {
+  background: #FFFFFF;
+  color: #A51C1F;
+  border: none;
+  border-radius: 12px;
+  padding: 0.85rem 1.5rem;
+  font-size: 0.92rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  margin-top: auto;
+  animation: ctcBtnPulse 2.2s infinite ease-in-out;
+}
+
+.ctc-register-btn:hover {
+  transform: translateY(-2px);
+  background: #FFFDF9;
+}
+
+.ctc-register-btn .ctc-btn-arrow {
+  transition: transform 0.2s ease;
+}
+
+.ctc-register-btn:hover .ctc-btn-arrow {
+  transform: translateX(4px);
+}
+
+/* ── Grid wrapper for Events page ── */
+.ctc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  width: 100%;
+}
+
+/* ── Skeleton card ── */
+.ctc-skeleton {
+  background: #e2e8f0;
+  border-radius: 16px;
+  opacity: 0.7;
+  animation: ctcSkeletonPulse 1.4s ease-in-out infinite;
+}
+
+.ctc-skeleton-img {
+  width: 100%;
+  height: 220px;
+  background: #cbd5e1;
+  border-radius: 16px 16px 0 0;
+}
+
+.ctc-skeleton-body {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ctc-skeleton-line {
+  height: 16px;
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.ctc-skeleton-btn {
+  height: 44px;
+  background: #cbd5e1;
+  border-radius: 12px;
+  margin-top: 8px;
+}
+
+/* ── Animations ── */
+@keyframes ctcFadeUp {
+  0% {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ctcBtnPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.8);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(255, 255, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes ctcSkeletonPulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.4; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .ctc-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .ctc-grid {
+    grid-template-columns: 1fr;
+  }
+  .ctc-image-frame {
+    height: 190px;
+  }
+}
+
+/* Adapt notch background to match the Events page section background */
+.events-page .ctc-notch,
+.home-page .ctc-notch {
+  background-color: #ffffff;
+}

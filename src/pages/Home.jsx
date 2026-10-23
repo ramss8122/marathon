@@ -13,9 +13,14 @@ import {
   FaTrophy,
   FaUserPlus,
   FaArrowsRotate,
-  FaCircleExclamation
+  FaCircleExclamation,
+  FaXmark,
+  FaLocationDot as FaPin,
+  FaCalendarDays as FaCal,
+  FaCircleCheck as FaRadioOn
 } from 'react-icons/fa6';
-import { RACE_PACKAGES, UPCOMING_EVENTS } from '../data/marathonData';
+import { RACE_PACKAGES } from '../data/marathonData';
+import CityTicketCard from '../components/CityTicketCard';
 
 // ⬇️ PASTE your marathon image link here.
 // Find one at https://unsplash.com/s/photos/marathon → right-click image → "Copy image address"
@@ -34,6 +39,39 @@ export default function Home() {
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+
+  // ── DYNAMIC CITIES (EVENTS SECTION) ──
+  const [cities, setCities] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
+
+  const fetchCities = useCallback(async () => {
+    try {
+      setCitiesLoading(true);
+      const res = await fetch(`/api/cities?t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          // Strictly active cities only
+          const activeOnly = json.data.filter(c => (c.status ? c.status === 'active' : c.isActive !== false));
+          setCities(activeOnly);
+        } else {
+          setCities([]);
+        }
+      } else {
+        setCities([]);
+      }
+    } catch {
+      setCities([]);
+    } finally {
+      setCitiesLoading(false);
+    }
+  }, []);
+
 
   const fetchStats = useCallback(async () => {
     try {
@@ -62,19 +100,39 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    fetchCities();
     fetchStats();
     // Periodically sync every 12 seconds with MongoDB database
     const timer = setInterval(fetchStats, 12000);
     return () => clearInterval(timer);
-  }, [fetchStats]);
+  }, [fetchCities, fetchStats]);
 
-  // Show only Chennai events in the Upcoming Events section
-  const chennaiEvents = UPCOMING_EVENTS.filter((event) =>
-    `${event.city} ${event.location}`.toLowerCase().includes('chennai')
-  );
+  // ── CITY SELECTION MODAL (for race package register buttons) ──
+  const [cityModalOpen, setCityModalOpen] = useState(false);
+  const [pendingPkgId, setPendingPkgId] = useState(null);
+  const [modalSelectedSlug, setModalSelectedSlug] = useState('');
+  const [modalError, setModalError] = useState('');
 
   const handleRegisterPackage = (packageId) => {
-    navigate(`/register?package=${packageId}`);
+    setPendingPkgId(packageId);
+    setModalSelectedSlug(cities.length === 1 ? cities[0].slug : '');
+    setModalError('');
+    setCityModalOpen(true);
+  };
+
+  const handleModalContinue = () => {
+    if (!modalSelectedSlug) {
+      setModalError('Please select a city to continue.');
+      return;
+    }
+    setCityModalOpen(false);
+    localStorage.setItem('selectedCity', modalSelectedSlug);
+    navigate(`/register/${modalSelectedSlug}?package=${pendingPkgId}`);
+  };
+
+  const handleModalClose = () => {
+    setCityModalOpen(false);
+    setModalError('');
   };
 
   return (
@@ -98,7 +156,7 @@ export default function Home() {
             </p>
 
             <div className="hero-actions">
-              <Link to="/register" className="btn btn-primary hero-btn">
+              <Link to="/events" className="btn btn-primary hero-btn">
                 <span>REGISTER NOW</span>
                 <FaArrowRight className="btn-icon" />
               </Link>
@@ -206,49 +264,39 @@ export default function Home() {
             </p>
           </div>
 
-          {chennaiEvents.length === 0 && (
-            <p className="section-subtitle">
-              No Chennai events are scheduled right now. Please check back soon.
-            </p>
+          {citiesLoading ? (
+            <div className="ctc-grid">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="ctc-skeleton">
+                  <div className="ctc-skeleton-img" />
+                  <div className="ctc-skeleton-body">
+                    <div className="ctc-skeleton-line" style={{ width: '50%' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '75%', height: '24px' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '85%' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '70%' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '80%' }} />
+                    <div className="ctc-skeleton-btn" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : cities.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', background: 'var(--bg-card, #ffffff)', borderRadius: '12px', border: '1px dashed #cbd5e1', margin: '1rem 0' }}>
+              <FaLocationDot style={{ fontSize: '2.5rem', color: '#94a3b8', marginBottom: '1rem' }} />
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>
+                New cities coming soon
+              </h3>
+              <p style={{ color: '#64748b', fontSize: '0.95rem', maxWidth: '440px', margin: '0 auto' }}>
+                We are actively planning new marathon editions across India. Check back soon for new host cities!
+              </p>
+            </div>
+          ) : (
+            <div className="ctc-grid">
+              {cities.map((city) => (
+                <CityTicketCard key={city._id || city.slug || city.name} city={city} />
+              ))}
+            </div>
           )}
-
-          <div className="events-grid">
-            {chennaiEvents.slice(0, 3).map((event) => (
-              <div key={event.id} className="event-card">
-                <div className="event-card-image-wrap">
-                  <img src={event.image} alt={event.name} className="event-card-img" />
-                  <span className="event-city-badge">{event.city}</span>
-                </div>
-                <div className="event-card-body">
-                  <h3 className="event-card-title">Chennai</h3>
-                  <div className="event-meta-list">
-                    <div className="event-meta-item">
-                      <FaCalendarDays className="event-meta-icon" />
-                      <span>{event.date}</span>
-                    </div>
-                    <div className="event-meta-item">
-                      <FaLocationDot className="event-meta-icon" />
-                      <span>{event.location}</span>
-                    </div>
-                  </div>
-                  <div className="event-distances-tags">
-                    {event.distances.map((dist) => (
-                      <span key={dist} className="distance-tag">{dist}</span>
-                    ))}
-                  </div>
-                  <p className="event-card-desc">{event.description}</p>
-                  <button
-                    type="button"
-                    onClick={() => navigate(`/register?event=${event.id}`)}
-                    className="btn btn-primary btn-block event-btn"
-                  >
-                    <span>Register Now</span>
-                    <FaArrowRight className="btn-icon" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
 
           
         </div>
@@ -404,7 +452,7 @@ export default function Home() {
               Secure your spot for the next INDIA RUNTRUST event today and take the first stride.
             </p>
             <div className="final-cta-buttons">
-              <Link to="/register" className="btn btn-primary btn-large">
+              <Link to="/events" className="btn btn-primary btn-large">
                 <span>REGISTER NOW</span>
                 <FaArrowRight className="btn-icon" />
               </Link>
@@ -566,6 +614,224 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── CITY SELECTION MODAL ── */}
+      {cityModalOpen && (
+        <>
+          <style>{`
+            .csm-backdrop {
+              position: fixed; inset: 0; z-index: 9999;
+              background: rgba(0,0,0,0.55);
+              backdrop-filter: blur(3px);
+              display: flex; align-items: center; justify-content: center;
+              padding: 1rem;
+              animation: csmFadeIn 0.18s ease;
+            }
+            @keyframes csmFadeIn { from { opacity: 0 } to { opacity: 1 } }
+            .csm-modal {
+              background: #fff;
+              border-radius: 20px;
+              width: 100%; max-width: 560px;
+              max-height: 88vh;
+              display: flex; flex-direction: column;
+              box-shadow: 0 24px 60px rgba(0,0,0,0.22);
+              animation: csmSlideUp 0.22s cubic-bezier(0.16,1,0.3,1);
+              overflow: hidden;
+            }
+            @keyframes csmSlideUp {
+              from { opacity:0; transform: translateY(32px) }
+              to   { opacity:1; transform: translateY(0) }
+            }
+            .csm-header {
+              padding: 1.5rem 1.75rem 1.1rem;
+              border-bottom: 1px solid #f1f5f9;
+              display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+              flex-shrink: 0;
+            }
+            .csm-pkg-label {
+              display: inline-block;
+              background: #A51C1F; color: #fff;
+              font-size: 0.72rem; font-weight: 800;
+              letter-spacing: 0.1em; text-transform: uppercase;
+              padding: 0.3rem 0.85rem; border-radius: 999px;
+              margin-bottom: 0.5rem;
+            }
+            .csm-title { font-size: 1.35rem; font-weight: 800; color: #111827; margin: 0; line-height: 1.25; }
+            .csm-subtitle { font-size: 0.85rem; color: #6b7280; margin: 0.3rem 0 0; }
+            .csm-close-btn {
+              width: 36px; height: 36px; border-radius: 50%;
+              border: 1px solid #e5e7eb; background: #f9fafb;
+              display: flex; align-items: center; justify-content: center;
+              cursor: pointer; color: #6b7280; font-size: 0.9rem; flex-shrink: 0;
+              transition: all 0.15s ease;
+            }
+            .csm-close-btn:hover { background: #A51C1F; color: #fff; border-color: #A51C1F; }
+            .csm-body { flex: 1; overflow-y: auto; padding: 1.1rem 1.75rem; }
+            .csm-state { text-align: center; padding: 2.5rem 1rem; color: #6b7280; font-size: 0.95rem; }
+            .csm-state-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+            .csm-cities-list { display: flex; flex-direction: column; gap: 0.75rem; }
+            .csm-city-option {
+              display: flex; align-items: center; gap: 1rem;
+              padding: 0.9rem 1rem;
+              border: 2px solid #e5e7eb; border-radius: 14px;
+              cursor: pointer; transition: all 0.15s ease;
+              background: #fff; user-select: none;
+            }
+            .csm-city-option:hover { border-color: #A51C1F; background: #fff7f7; }
+            .csm-city-option.csm-selected { border-color: #A51C1F; background: #fff0f0; box-shadow: 0 0 0 3px rgba(165,28,31,0.10); }
+            .csm-city-img { width: 64px; height: 64px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #f1f5f9; }
+            .csm-city-info { flex: 1; min-width: 0; }
+            .csm-city-name { font-size: 1.05rem; font-weight: 700; color: #111827; margin: 0 0 0.25rem; }
+            .csm-city-meta { font-size: 0.8rem; color: #6b7280; display: flex; flex-direction: column; gap: 0.2rem; }
+            .csm-city-meta-row { display: inline-flex; align-items: center; gap: 0.35rem; }
+            .csm-city-meta-icon { color: #A51C1F; font-size: 0.72rem; flex-shrink: 0; }
+            .csm-radio {
+              width: 20px; height: 20px; border-radius: 50%;
+              border: 2px solid #d1d5db;
+              display: flex; align-items: center; justify-content: center;
+              flex-shrink: 0; transition: border-color 0.15s ease;
+            }
+            .csm-city-option.csm-selected .csm-radio { border-color: #A51C1F; }
+            .csm-radio-dot { width: 10px; height: 10px; border-radius: 50%; background: #A51C1F; display: none; }
+            .csm-city-option.csm-selected .csm-radio-dot { display: block; }
+            .csm-error {
+              margin: 0.75rem 0 0; padding: 0.65rem 1rem;
+              background: #fef2f2; border: 1px solid #fca5a5;
+              border-radius: 8px; color: #b91c1c;
+              font-size: 0.85rem; font-weight: 600;
+            }
+            .csm-footer {
+              padding: 1rem 1.75rem 1.5rem;
+              border-top: 1px solid #f1f5f9;
+              display: flex; gap: 0.75rem; justify-content: flex-end;
+              flex-shrink: 0;
+            }
+            .csm-cancel-btn {
+              padding: 0.7rem 1.5rem;
+              border: 1.5px solid #d1d5db; background: #fff;
+              border-radius: 10px; font-size: 0.9rem; font-weight: 700;
+              color: #374151; cursor: pointer; transition: all 0.15s ease;
+            }
+            .csm-cancel-btn:hover { border-color: #9ca3af; background: #f9fafb; }
+            .csm-continue-btn {
+              padding: 0.7rem 1.75rem;
+              background: #A51C1F; border: none; border-radius: 10px;
+              font-size: 0.9rem; font-weight: 800; color: #fff; cursor: pointer;
+              display: inline-flex; align-items: center; gap: 0.5rem;
+              transition: all 0.15s ease;
+            }
+            .csm-continue-btn:hover:not(:disabled) { background: #8b1518; transform: translateY(-1px); }
+            .csm-continue-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+            @media (max-width: 480px) {
+              .csm-modal { border-radius: 16px 16px 0 0; max-height: 92vh; align-self: flex-end; }
+              .csm-backdrop { align-items: flex-end; padding: 0; }
+              .csm-header { padding: 1.25rem 1.25rem 0.9rem; }
+              .csm-body { padding: 0.9rem 1.25rem; }
+              .csm-footer { padding: 0.9rem 1.25rem 1.25rem; }
+              .csm-city-img { width: 52px; height: 52px; }
+            }
+          `}</style>
+
+          <div className="csm-backdrop" onClick={handleModalClose}>
+            <div className="csm-modal" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+
+              {/* Header */}
+              <div className="csm-header">
+                <div>
+                  {(() => {
+                    const pkg = RACE_PACKAGES.find(p => p.id === pendingPkgId);
+                    return pkg ? <div className="csm-pkg-label">{pkg.distance} — {pkg.name}</div> : null;
+                  })()}
+                  <h2 className="csm-title">Choose Your City</h2>
+                  <p className="csm-subtitle">Select the city where you want to run</p>
+                </div>
+                <button type="button" className="csm-close-btn" onClick={handleModalClose} aria-label="Close modal">
+                  <FaXmark />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="csm-body">
+                {citiesLoading ? (
+                  <div className="csm-state">
+                    <div className="csm-state-icon">⏳</div>
+                    <p>Loading cities...</p>
+                  </div>
+                ) : cities.length === 0 ? (
+                  <div className="csm-state">
+                    <div className="csm-state-icon">🏙️</div>
+                    <p style={{ margin: 0 }}>No active cities configured yet.<br />Please check back soon.</p>
+                  </div>
+                ) : (
+                  <div className="csm-cities-list">
+                    {cities.map((city) => {
+                      const isSelected = modalSelectedSlug === city.slug;
+                      const cityDate = city.eventDate || city.date || '';
+                      return (
+                        <div
+                          key={city.slug || city._id}
+                          className={`csm-city-option${isSelected ? ' csm-selected' : ''}`}
+                          onClick={() => { setModalSelectedSlug(city.slug); setModalError(''); }}
+                          role="radio"
+                          aria-checked={isSelected}
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === ' ' || e.key === 'Enter') { setModalSelectedSlug(city.slug); setModalError(''); } }}
+                        >
+                          <img
+                            className="csm-city-img"
+                            src={city.imageUrl || '/assets/chennai.png'}
+                            alt={city.name}
+                            onError={(e) => { e.currentTarget.src = '/assets/chennai.png'; }}
+                          />
+                          <div className="csm-city-info">
+                            <div className="csm-city-name">{city.name}</div>
+                            <div className="csm-city-meta">
+                              {city.venue && (
+                                <span className="csm-city-meta-row">
+                                  <FaLocationDot className="csm-city-meta-icon" />
+                                  {city.venue}
+                                </span>
+                              )}
+                              {cityDate && (
+                                <span className="csm-city-meta-row">
+                                  <FaCalendarDays className="csm-city-meta-icon" />
+                                  {cityDate}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="csm-radio">
+                            <div className="csm-radio-dot" />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {modalError && (
+                  <div className="csm-error" role="alert">{modalError}</div>
+                )}
+              </div>
+
+              {/* Footer */}
+              <div className="csm-footer">
+                <button type="button" className="csm-cancel-btn" onClick={handleModalClose}>Cancel</button>
+                <button
+                  type="button"
+                  className="csm-continue-btn"
+                  onClick={handleModalContinue}
+                  disabled={citiesLoading || cities.length === 0}
+                >
+                  <span>Continue</span>
+                  <FaArrowRight style={{ fontSize: '0.85rem' }} />
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

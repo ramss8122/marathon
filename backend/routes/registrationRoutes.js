@@ -1,16 +1,9 @@
 import express from 'express';
-import {
-  createRegistration,
-  getAllRegistrations,
-  updateRegistration,
-  deleteRegistration
-} from '../controllers/registrationController.js';
+import { createRegistration } from '../controllers/registrationController.js';
 
 const router = express.Router();
 
+// Only public participant registration submission
 router.post('/', createRegistration);
-router.get('/', getAllRegistrations);
-router.patch('/:id', updateRegistration);
-router.delete('/:id', deleteRegistration);
 
 export default router;

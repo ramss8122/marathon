@@ -1,41 +1,112 @@
+import dns from 'node:dns';
+dns.setServers(['8.8.8.8', '1.1.1.1']);
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import mongoose from 'mongoose';
-import { connectDB, isDbReady } from './config/db.js';
+import { connectDB } from './config/db.js';
 
 // Route imports
 import registrationRoutes from './routes/registrationRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
 import transparencyRoutes from './routes/transparencyRoutes.js';
+import cityRoutes from './routes/cityRoutes.js';
+import emailRoutes from './routes/emailRoutes.js';
+import { seedDefaultCities } from './controllers/cityController.js';
+import { assertAdminConfig } from './controllers/adminController.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables from backend/.env or root .env
+// ── LOAD ENVIRONMENT VARIABLES ──
 dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
+
+// Assert required environment configuration (refuses to start if missing)
+assertAdminConfig();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 const CLIENT_URL = process.env.CLIENT_URL || 'http://localhost:5173';
+const isProduction = process.env.NODE_ENV === 'production';
 
-// ── CONNECT TO MONGODB ──
-connectDB();
+// Trust first reverse proxy (e.g. Nginx, Heroku, Cloudflare)
+app.set('trust proxy', 1);
 
-// ── MIDDLEWARE ──
+// ── SECURITY HEADERS ──
+app.use(helmet());
+
+// ── CORS CONFIGURATION ──
+// Restrict CORS to CLIENT_URL (plus localhost only when NODE_ENV is not production)
 app.use(cors({
-  origin: [CLIENT_URL, 'http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: (origin, callback) => {
+    // Allow non-browser requests (curl, postman, server-to-server) without Origin header
+    if (!origin) return callback(null, true);
+
+    if (CLIENT_URL && origin === CLIENT_URL) {
+      return callback(null, true);
+    }
+
+    if (!isProduction) {
+      const isLocalhost = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+      if (isLocalhost) {
+        return callback(null, true);
+      }
+    }
+
+    return callback(new Error(`CORS policy blocked access from origin: ${origin}`));
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ── BODY PARSERS (LIMITED TO 200KB) ──
+app.use(express.json({ limit: '200kb' }));
+app.use(express.urlencoded({ limit: '200kb', extended: true }));
+
+// ── RATE LIMITERS ──
+// 1. Strict rate limiter on admin login: 5 attempts per 15 minutes per IP
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many login attempts from this IP. Please try again after 15 minutes.'
+  }
+});
+
+// 2. Moderate rate limiter on registrations: 30 attempts per 15 minutes per IP
+const registrationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many registration requests from this IP. Please try again later.'
+  }
+});
+
+// 3. Moderate rate limiter on contact messages: 10 attempts per 15 minutes per IP
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    message: 'Too many contact messages sent from this IP. Please try again later.'
+  }
+});
 
 // Request logging in development
 app.use((req, res, next) => {
@@ -47,6 +118,12 @@ app.use((req, res, next) => {
     }
   });
   next();
+});
+
+// ── CONNECT TO MONGODB ──
+connectDB();
+mongoose.connection.once('open', () => {
+  seedDefaultCities();
 });
 
 // ── HEALTH CHECK ENDPOINT ──
@@ -70,11 +147,19 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ── API ROUTES ──
-app.use('/api/registrations', registrationRoutes);
-app.use('/api/contact', contactRoutes);
+// ── API ROUTES WITH SECURITY RATE LIMITS ──
+app.post('/api/admin/login', adminLoginLimiter);
 app.use('/api/admin', adminRoutes);
+
+app.post('/api/registrations', registrationLimiter);
+app.use('/api/registrations', registrationRoutes);
+
+app.post('/api/contact', contactLimiter);
+app.use('/api/contact', contactRoutes);
+
 app.use('/api/transparency', transparencyRoutes);
+app.use('/api/cities', cityRoutes);
+app.use('/api/email', emailRoutes);
 
 // Root informational endpoint
 app.get('/', (req, res) => {
@@ -111,8 +196,8 @@ app.use((err, req, res, next) => {
 // ── START HTTP SERVER ──
 app.listen(PORT, () => {
   console.log(`[Express] RUNTRUST Marathon backend running on http://localhost:${PORT}`);
-  console.log(`[Express] Target MongoDB: ${process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/runora_marathon'}`);
-  console.log(`[Express] Frontend origin allowed: ${CLIENT_URL}`);
+  console.log(`[Express] Security: Helmet, Body limits (200kb), Rate limiters & strict CORS active`);
+  console.log(`[Express] Frontend origin allowed: ${CLIENT_URL} (plus localhost when in development)`);
 });
 
 export default app;

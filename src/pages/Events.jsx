@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
-  FaCalendarDays,
   FaLocationDot,
   FaArrowRight,
   FaPersonRunning,
-  FaClock,
   FaCircleCheck,
   FaMedal,
   FaRoute,
@@ -16,21 +14,50 @@ import {
   FaAppleWhole,
   FaXmark
 } from 'react-icons/fa6';
-import { UPCOMING_EVENTS } from '../data/marathonData';
+import CityTicketCard from '../components/CityTicketCard';
+
 
 export default function Events() {
   const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState(null);
   const [selectedCategoryModal, setSelectedCategoryModal] = useState(null);
 
-  // Chennai events mattum
-  const chennaiEvents = UPCOMING_EVENTS.filter(
-    (evt) => evt.city && evt.city.toLowerCase() === 'chennai'
-  );
+  // ── DYNAMIC CITIES FETCH ──
+  const [cities, setCities] = useState([]);
+  const [citiesLoading, setCitiesLoading] = useState(true);
 
-  const handleRegister = (eventId) => {
-    navigate(`/register?event=${eventId}`);
-  };
+  const fetchCities = useCallback(async () => {
+    try {
+      setCitiesLoading(true);
+      const res = await fetch(`/api/cities?t=${Date.now()}`, {
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          // Strictly active cities only
+          const activeOnly = json.data.filter(c => (c.status ? c.status === 'active' : c.isActive !== false));
+          setCities(activeOnly);
+        } else {
+          setCities([]);
+        }
+      } else {
+        setCities([]);
+      }
+    } catch {
+      setCities([]);
+    } finally {
+      setCitiesLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchCities();
+  }, [fetchCities]);
+
 
   const toggleFaq = (idx) => {
     setActiveFaq(activeFaq === idx ? null : idx);
@@ -247,11 +274,11 @@ export default function Events() {
               <span className="stat-label">Events Planned</span>
             </div>
             <div className="page-hero-image-frame">
-             <img
-  src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80"
-  alt="Group of runners participating in a marathon"
-  className="about-feature-img"
-/>
+              <img
+                src="https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80"
+                alt="Group of runners participating in a marathon"
+                className="about-feature-img"
+              />
               <div className="page-hero-img-caption">
                 <FaLocationDot /> Chennai
               </div>
@@ -271,63 +298,40 @@ export default function Events() {
             </p>
           </div>
 
-          <div className="events-grid">
-            {chennaiEvents.map((event) => (
-              <div key={event.id} className="event-card">
-                <div className="event-card-image-wrap">
-                  <img src={event.image} alt={event.name} className="event-card-img" />
-                  <span className="event-city-badge">{event.city}</span>
-                </div>
-
-                <div className="event-card-body">
-                  <h2 className="event-card-title">{event.city}</h2>
-
-                  <div className="event-meta-list">
-                    <div className="event-meta-item">
-                      <FaCalendarDays className="event-meta-icon" />
-                      <div>
-                        <strong>Date:</strong> {event.date}
-                      </div>
-                    </div>
-                    <div className="event-meta-item">
-                      <FaClock className="event-meta-icon" />
-                      <div>
-                        <strong>Flag-off:</strong> {event.time}
-                      </div>
-                    </div>
-                    <div className="event-meta-item">
-                      <FaLocationDot className="event-meta-icon" />
-                      <div>
-                        <strong>Venue:</strong> {event.location}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="event-distances-block">
-                    <span className="distances-heading">Available Categories:</span>
-                    <div className="event-distances-tags">
-                      {event.distances.map((dist) => (
-                        <span key={dist} className="distance-tag">{dist}</span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <p className="event-card-desc">{event.description}</p>
-
-                  <div className="event-card-actions">
-                    <button
-                      type="button"
-                      onClick={() => handleRegister(event.id)}
-                      className="btn btn-primary btn-block event-btn"
-                    >
-                      <span>Register for this Event</span>
-                      <FaArrowRight className="btn-icon" />
-                    </button>
+          {citiesLoading ? (
+            <div className="ctc-grid">
+              {[1, 2, 3].map((n) => (
+                <div key={n} className="ctc-skeleton">
+                  <div className="ctc-skeleton-img" />
+                  <div className="ctc-skeleton-body">
+                    <div className="ctc-skeleton-line" style={{ width: '50%' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '75%', height: '24px' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '85%' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '70%' }} />
+                    <div className="ctc-skeleton-line" style={{ width: '80%' }} />
+                    <div className="ctc-skeleton-btn" />
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : cities.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', background: 'var(--bg-card, #ffffff)', borderRadius: '12px', border: '1px dashed #cbd5e1', margin: '1rem 0' }}>
+              <FaLocationDot style={{ fontSize: '2.5rem', color: '#94a3b8', marginBottom: '1rem' }} />
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#1e293b', marginBottom: '0.5rem' }}>
+                New cities coming soon
+              </h3>
+              <p style={{ color: '#64748b', fontSize: '0.95rem', maxWidth: '440px', margin: '0 auto' }}>
+                We are actively coordinating with city sports councils to bring RUNTRUST marathons to more locations. Check back soon for new race announcements!
+              </p>
+            </div>
+          ) : (
+            <div className="ctc-grid">
+              {cities.map((city) => (
+                <CityTicketCard key={city._id || city.slug || city.name} city={city} />
+              ))}
+            </div>
+          )}
+
 
           <div className="sample-disclaimer-box" style={{ marginTop: '2.5rem' }}>
             <p>
