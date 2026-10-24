@@ -24,11 +24,9 @@ import { assertAdminConfig } from './controllers/adminController.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ── LOAD ENVIRONMENT VARIABLES ──
 dotenv.config({ path: path.join(__dirname, '.env') });
 dotenv.config({ path: path.join(__dirname, '..', '.env') });
 
-// Assert required environment configuration (refuses to start if missing)
 assertAdminConfig();
 
 const app = express();

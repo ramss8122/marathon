@@ -4056,16 +4056,17 @@ p {
 }
 
 .schedule-time-box {
-  background: #1C1C1E;
-  color: #9E1B22;
-  font-size: 0.85rem;
-  font-weight: 800;
-  padding: 0.5rem 0.75rem;
-  border-radius: var(--radius-sm);
+  background: var(--color-crimson, #A71920);
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
   white-space: nowrap;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   text-align: center;
   flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(167, 25, 32, 0.2);
 }
 
 .schedule-info {
@@ -4319,15 +4320,16 @@ p {
 
 .training-week-tag {
   display: inline-block;
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-size: 0.68rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  background: #1C1C1E;
-  color: #9E1B22;
-  padding: 0.25rem 0.65rem;
-  border-radius: var(--radius-sm);
-  margin-bottom: 0.75rem;
+  letter-spacing: 0.05em;
+  background: var(--color-crimson, #A71920);
+  color: #FFFFFF;
+  padding: 0.22rem 0.6rem;
+  border-radius: 6px;
+  margin-bottom: 0.65rem;
+  box-shadow: 0 2px 5px rgba(167, 25, 32, 0.18);
 }
 
 .training-title {
@@ -4432,14 +4434,14 @@ p {
   position: absolute;
   top: 1rem;
   left: 1rem;
-  background: rgba(28, 28, 30, 0.85);
-  backdrop-filter: blur(6px);
-  color: #9E1B22;
-  font-size: 0.75rem;
+  background: var(--color-crimson, #A71920);
+  color: #FFFFFF;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 0.3rem 0.75rem;
+  padding: 0.25rem 0.65rem;
   border-radius: var(--radius-pill);
-  border: 1px solid rgba(158, 27, 34, 0.3);
+  border: none;
+  box-shadow: 0 2px 6px rgba(167, 25, 32, 0.25);
 }
 
 .impact-showcase-body {
@@ -4668,14 +4670,15 @@ p {
 }
 
 .pacer-bus-time {
-  background: #1C1C1E;
-  color: #9E1B22;
-  font-size: 1.25rem;
-  font-weight: 800;
-  padding: 0.5rem 1rem;
+  background: var(--color-crimson, #A71920);
+  color: #FFFFFF;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 0.35rem 0.85rem;
   border-radius: var(--radius-pill);
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.65rem;
   display: inline-block;
+  box-shadow: 0 2px 6px rgba(167, 25, 32, 0.2);
 }
 
 .pacer-distance-label {

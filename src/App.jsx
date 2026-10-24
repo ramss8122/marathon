@@ -157,6 +157,9 @@ export default function App() {
           <Route path="/chennai-event" element={<ChennaiEvent />} />
           <Route path="/register" element={<Registration />} />
           <Route path="/register/:slug" element={<Registration />} />
+          <Route path="/events/book" element={<Registration />} />
+          <Route path="/events/:slug/book" element={<Registration />} />
+          <Route path="/events/:eventId/book" element={<Registration />} />
           <Route path="/faq" element={<Faq />} />
           <Route path="/faq.html" element={<Faq />} />
           {/* Catch-all route within public layout */}

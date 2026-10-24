@@ -153,9 +153,7 @@ export default function Contact() {
                 alt="Marathon participants and running event community"
                 className="page-hero-img"
               />
-              <div className="page-hero-img-caption">
-                <FaLocationDot /> Available Across 4 Cities
-              </div>
+              
             </div>
           </div>
         </div>
@@ -200,11 +198,11 @@ export default function Contact() {
                   <div className="contact-card-icon">
                     <FaLocationDot />
                   </div>
-                  <div className="contact-card-details">
-                    <h3 className="contact-card-heading">Key Activity Cities</h3>
-                    <p className="contact-card-value">Chennai • Coimbatore • Bengaluru • Kochi</p>
-                    <span className="demo-placeholder-tag">(Event Venues Announced Per Schedule)</span>
-                  </div>
+                 <div className="contact-card-details">
+  <h3 className="contact-card-heading">Event Locations</h3>
+  <p className="contact-card-value">Multiple Cities Across India</p>
+  <span className="demo-placeholder-tag">(Event Venues Announced Per Schedule)</span>
+</div>
                 </div>
               </div>
 

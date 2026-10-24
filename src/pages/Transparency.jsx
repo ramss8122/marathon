@@ -21,12 +21,22 @@ import {
   FaDatabase
 } from 'react-icons/fa6';
 import { RACE_PACKAGES } from '../data/marathonData';
+import CitySelectModal from '../components/CitySelectModal';
 
 export default function Transparency() {
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+
+  // ── CITY SELECTION MODAL ──
+  const [cityModalOpen, setCityModalOpen] = useState(false);
+  const [selectedCategoryForModal, setSelectedCategoryForModal] = useState(null);
+
+  const openCityModal = (category = null) => {
+    setSelectedCategoryForModal(category);
+    setCityModalOpen(true);
+  };
 
   const fetchStats = useCallback(async () => {
     setStatsLoading(true);
@@ -404,12 +414,13 @@ export default function Transparency() {
                       </ul>
                     </td>
                     <td>
-                      <Link
-                        to={`/register?package=${pkg.id}`}
+                      <button
+                        type="button"
                         className="btn btn-primary btn-sm"
+                        onClick={() => openCityModal(pkg)}
                       >
                         Select
-                      </Link>
+                      </button>
                     </td>
                   </tr>
                 ))}
@@ -472,7 +483,12 @@ export default function Transparency() {
         </div>
       </section>
 
-     
+      {/* ── SHARED CITY SELECTION MODAL ── */}
+      <CitySelectModal
+        isOpen={cityModalOpen}
+        onClose={() => setCityModalOpen(false)}
+        category={selectedCategoryForModal}
+      />
 
     </div>
   );

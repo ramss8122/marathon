@@ -12,15 +12,25 @@ import {
   FaKitMedical,
   FaShirt,
   FaAppleWhole,
-  FaXmark
+  FaXmark,
+  FaCalendarDays
 } from 'react-icons/fa6';
 import CityTicketCard from '../components/CityTicketCard';
-
+import CitySelectModal from '../components/CitySelectModal';
 
 export default function Events() {
   const navigate = useNavigate();
   const [activeFaq, setActiveFaq] = useState(null);
   const [selectedCategoryModal, setSelectedCategoryModal] = useState(null);
+
+  // ── CITY SELECTION MODAL ──
+  const [cityModalOpen, setCityModalOpen] = useState(false);
+  const [selectedCategoryForModal, setSelectedCategoryForModal] = useState(null);
+
+  const openCityModal = (category) => {
+    setSelectedCategoryForModal(category);
+    setCityModalOpen(true);
+  };
 
   // ── DYNAMIC CITIES FETCH ──
   const [cities, setCities] = useState([]);
@@ -260,7 +270,6 @@ export default function Events() {
               </a>
             </div>
             <div className="page-hero-highlights">
-              <span className="page-hero-highlight"><FaCircleCheck /> Chennai</span>
               <span className="page-hero-highlight"><FaCircleCheck /> 5 Distances</span>
               <span className="page-hero-highlight"><FaCircleCheck /> RFID Timed</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Finisher Medals</span>
@@ -279,9 +288,7 @@ export default function Events() {
                 alt="Group of runners participating in a marathon"
                 className="about-feature-img"
               />
-              <div className="page-hero-img-caption">
-                <FaLocationDot /> Chennai
-              </div>
+              
             </div>
           </div>
         </div>
@@ -292,7 +299,7 @@ export default function Events() {
         <div className="content-container">
           <div className="section-header">
             <span className="section-eyebrow">Upcoming Runs</span>
-            <h2 className="section-title">Chennai Marathon Series</h2>
+            <h2 className="section-title">Our Race Services</h2>
             <p className="section-subtitle">
               Carefully scouted routes with tree-lined boulevards, waterfront paths, and full runner hydration facilities.
             </p>
@@ -397,14 +404,15 @@ export default function Events() {
                 </div>
 
                 <div style={actionsRowStyle}>
-                  <Link
-                    to={`/register?package=${cat.id}`}
+                  <button
+                    type="button"
                     className="btn btn-primary btn-sm"
                     style={registerBtnStyle}
+                    onClick={() => openCityModal(cat)}
                   >
                     <span>Register {cat.distance}</span>
                     <FaArrowRight className="btn-icon" />
-                  </Link>
+                  </button>
                   <button
                     type="button"
                     className="btn btn-outline btn-sm"
@@ -543,9 +551,9 @@ export default function Events() {
                 type="button"
                 className="btn btn-primary"
                 onClick={() => {
-                  const catId = selectedCategoryModal.id;
+                  const cat = selectedCategoryModal;
                   setSelectedCategoryModal(null);
-                  navigate(`/register?package=${catId}`);
+                  openCityModal(cat);
                 }}
               >
                 <span>Continue to Register ({selectedCategoryModal.distance})</span>
@@ -555,6 +563,14 @@ export default function Events() {
           </div>
         </div>
       )}
+
+      {/* ── SHARED CITY SELECTION MODAL ── */}
+      <CitySelectModal
+        isOpen={cityModalOpen}
+        onClose={() => setCityModalOpen(false)}
+        category={selectedCategoryForModal}
+        initialCities={cities}
+      />
 
     </div>
   );

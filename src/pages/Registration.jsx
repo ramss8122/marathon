@@ -73,10 +73,16 @@ const formatTimer = (secs) => {
 };
 
 export default function Registration() {
-  const { slug } = useParams();
+  const { slug, eventId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const targetCitySlug =
+    searchParams.get('city') ||
+    (slug && slug !== 'book' ? slug : null) ||
+    (eventId && eventId !== ':eventId' && eventId !== 'book' ? eventId : null) ||
+    localStorage.getItem('selectedCity');
 
   // Multi-city states
   const [availableCities, setAvailableCities] = useState([]);
@@ -84,11 +90,11 @@ export default function Registration() {
   const [selectedCitySlug, setSelectedCitySlug] = useState('chennai');
   const [cityData, setCityData] = useState(null);
   // FIX: start as "loading" when a slug is present, so the page never flashes empty data
-  const [isLoadingCityData, setIsLoadingCityData] = useState(!!slug);
+  const [isLoadingCityData, setIsLoadingCityData] = useState(!!targetCitySlug);
 
   // Fetch active cities if on /register (no slug)
   useEffect(() => {
-    if (!slug) {
+    if (!targetCitySlug) {
       setIsLoadingCities(true);
       fetch('/api/cities')
         .then((res) => res.json())
@@ -108,13 +114,13 @@ export default function Registration() {
         })
         .finally(() => setIsLoadingCities(false));
     }
-  }, [slug]);
+  }, [targetCitySlug]);
 
-  // Fetch city by slug if on /register/:slug
+  // Fetch city by slug if on /register/:slug or targetCitySlug is present
   useEffect(() => {
-    if (slug) {
+    if (targetCitySlug) {
       setIsLoadingCityData(true);
-      fetch(`/api/cities/${slug}`)
+      fetch(`/api/cities/${targetCitySlug}`)
         .then((res) => {
           if (!res.ok) throw new Error('City not found');
           return res.json();
@@ -137,10 +143,10 @@ export default function Registration() {
     } else {
       setCityData(null);
     }
-  }, [slug, navigate]);
+  }, [targetCitySlug, navigate]);
 
   const initialPkgParam =
-    searchParams.get('package') || searchParams.get('packages') || searchParams.get('category');
+    searchParams.get('category') || searchParams.get('package') || searchParams.get('packages');
   const initialEventParam = searchParams.get('event');
   const initialStepParam = searchParams.get('step');
 
@@ -150,7 +156,12 @@ export default function Registration() {
     if (initialPkgParam) {
       const splitIds = initialPkgParam.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
       splitIds.forEach(id => {
-        if (q[id] !== undefined) q[id] = 1;
+        const matched = RACE_PACKAGES.find(p => p.id.toLowerCase() === id || p.distance.toLowerCase() === id);
+        if (matched) {
+          q[matched.id] = 1;
+        } else if (q[id] !== undefined) {
+          q[id] = 1;
+        }
       });
     }
     return q;
@@ -169,7 +180,7 @@ export default function Registration() {
   // FIX: when the URL has a city slug (/register/:slug), start directly on the Pick Tickets page
   const [step, setStep] = useState(() => {
     if (initialStepParam === 'details') return 'details';
-    if (slug) return 'pick';
+    if (targetCitySlug) return 'pick';
     if (initialStepParam === 'pick') return 'pick';
     if (initialPkgParam) return 'pick';
     return 'event';
@@ -193,15 +204,22 @@ export default function Registration() {
   useEffect(() => {
     if (initialPkgParam) {
       const splitIds = initialPkgParam.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
-      setTicketQuantities(prev => {
-        const next = { ...prev };
-        splitIds.forEach(id => {
-          if (next[id] !== undefined && next[id] === 0) {
-            next[id] = 1;
-          }
-        });
-        return next;
+      const next = {};
+      RACE_PACKAGES.forEach((p) => { next[p.id] = 0; });
+      let hasMatch = false;
+      splitIds.forEach(id => {
+        const matched = RACE_PACKAGES.find(p => p.id.toLowerCase() === id || p.distance.toLowerCase() === id);
+        if (matched) {
+          next[matched.id] = 1;
+          hasMatch = true;
+        } else if (next[id] !== undefined) {
+          next[id] = 1;
+          hasMatch = true;
+        }
       });
+      if (hasMatch) {
+        setTicketQuantities(next);
+      }
     }
     if (initialEventParam) {
       const matchedEvt = EVENT_LIST.find(e => e.id === initialEventParam);
@@ -220,14 +238,14 @@ export default function Registration() {
   // FIX: with a city slug in the URL we must stay on the Pick Tickets page.
   // Without a slug (/register), fall back to the city cards step.
   useEffect(() => {
-    if (slug) {
+    if (targetCitySlug) {
       setStep((prev) => (prev === 'event' ? 'pick' : prev));
       return;
     }
     if (!initialPkgParam && !searchParams.get('step')) {
       setStep('event');
     }
-  }, [location.key, slug]);
+  }, [location.key, targetCitySlug, initialPkgParam]);
 
   // Countdown while on details step
   useEffect(() => {
@@ -269,13 +287,21 @@ export default function Registration() {
   const eventInfo = EVENT_LIST.find(e => e.id === formData.selectedEvent) || EVENT_LIST[0];
 
   // FIX: header data comes from the city in the URL (no hard-coded Chennai fallback)
+  const isHyd = cityData?.slug === 'hyderabad' || (cityData?.name && cityData.name.toLowerCase().includes('hyderabad'));
   const eventName = cityData?.name || eventInfo?.city || '';
-  const eventDate = cityData?.eventDate || cityData?.date || eventInfo?.date || '';
-  const cityFlagOff = cityData?.flagOffTime || cityData?.time || '';
-  const eventTime = cityData
-    ? (cityData.gatesOpenTime ? `${cityFlagOff} (Gates Open ${cityData.gatesOpenTime})` : cityFlagOff)
-    : (eventInfo?.time || '');
-  const eventVenue = cityData?.venue || eventInfo?.location || '';
+  const rawDate = cityData?.eventDate || cityData?.date || eventInfo?.date || '';
+  const eventDate = isHyd && (!rawDate || /sunday nov 15/i.test(rawDate))
+    ? 'Sunday, 22 Nov 2026'
+    : rawDate;
+  const cityFlagOff = cityData?.flagOffTime || cityData?.time || '5:30 AM IST';
+  const gatesOpen = cityData?.gatesOpenTime || '4:30 AM';
+  const eventTime = cityFlagOff.includes('Gates Open')
+    ? cityFlagOff
+    : `${cityFlagOff} (Gates Open ${gatesOpen})`;
+  const rawVenue = cityData?.venue || eventInfo?.location || '';
+  const eventVenue = isHyd && (!rawVenue || /hydrra|besant/i.test(rawVenue))
+    ? 'Gachibowli Stadium, Hyderabad'
+    : rawVenue;
   const eventBadge = cityData?.badgeText || 'Certified coastal course';
   const eventImage = cityData?.imageUrl || '/assets/chennai.png';
 
@@ -283,9 +309,12 @@ export default function Registration() {
   const visiblePackages =
     cityData?.categories?.length
       ? RACE_PACKAGES.filter((p) =>
-          cityData.categories
-            .map((c) => String(c).toLowerCase())
-            .includes(String(p.id).toLowerCase())
+          cityData.categories.some((c) => {
+            const sc = String(c).toLowerCase().trim();
+            const pid = p.id.toLowerCase();
+            const pdist = p.distance.toLowerCase();
+            return sc === pid || sc === pdist || sc.startsWith(pdist) || p.name.toLowerCase().includes(sc);
+          })
         )
       : RACE_PACKAGES;
 
@@ -577,7 +606,7 @@ export default function Registration() {
     setSubmitError('');
     setPickError('');
     // FIX: stay on the Pick Tickets page when the city is in the URL
-    setStep(slug ? 'pick' : 'event');
+    setStep(targetCitySlug ? 'pick' : 'event');
     setCodeInput('');
     setAppliedCode(null);
     setCodeMsg('');
@@ -1006,8 +1035,19 @@ export default function Registration() {
           <button
             type="button"
             className="btn btn-primary btn-block"
-            style={{ marginTop: '1rem', width: '100%', display: 'inline-flex', justifyContent: 'center', alignItems: 'center', gap: '0.5rem', boxSizing: 'border-box' }}
+            style={{
+              marginTop: '1rem',
+              width: '100%',
+              display: 'inline-flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.5rem',
+              boxSizing: 'border-box',
+              opacity: totalTickets === 0 ? 0.5 : 1,
+              cursor: totalTickets === 0 ? 'not-allowed' : 'pointer'
+            }}
             onClick={handleProceed}
+            disabled={totalTickets === 0}
           >
             <span>Proceed</span>
             <FaArrowRight className="btn-icon" />
@@ -1030,7 +1070,7 @@ export default function Registration() {
 
   // Navbar Register Now should open the Events page.
   // Keep direct city registration URLs (/register/:slug) and package query URLs working.
-  if (!slug && !searchParams.get('package') && !searchParams.get('packages') &&
+  if (!targetCitySlug && !searchParams.get('package') && !searchParams.get('packages') &&
       !searchParams.get('category') && !searchParams.get('event') && !searchParams.get('step')) {
     return <Navigate to="/events" replace />;
   }
@@ -1288,11 +1328,16 @@ export default function Registration() {
                         type="button"
                         style={backBtnStyle}
                         onClick={() => {
-                          // FIX: back arrow goes to the Events page
-                          navigate('/events');
+                          if (location.state?.from) {
+                            navigate(location.state.from);
+                          } else if (window.history.length > 1) {
+                            navigate(-1);
+                          } else {
+                            navigate('/events');
+                          }
                           window.scrollTo({ top: 0, behavior: 'smooth' });
                         }}
-                        aria-label="Back to events"
+                        aria-label="Back to previous page"
                       >
                         <FaArrowLeft />
                       </button>

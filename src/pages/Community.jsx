@@ -14,12 +14,10 @@ import {
   FaAward
 } from 'react-icons/fa6';
 
-// Marathon / running only photos
 const IMG_HERO_BG = 'https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=1600&q=80';
 const IMG_HERO_SIDE = 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=800&q=80';
 
 export default function Community() {
-  // Chennai chapter only
   const cityChapters = [
     {
       city: 'Chennai',
@@ -98,7 +96,6 @@ export default function Community() {
     }
   ];
 
-  // All gallery photos are marathon / running photos
   const galleryMoments = [
     {
       img: 'https://images.unsplash.com/photo-1452626038306-9aae5e071dd3?auto=format&fit=crop&w=600&q=80',
@@ -132,27 +129,60 @@ export default function Community() {
     }
   ];
 
-  // Chennai testimonial only
   const testimonials = [
     {
-      name: 'Priya Sundaram',
-      category: 'Family 1K Fun Run',
+      name: 'Karthik Subramanian',
+      category: '5K Run',
       city: 'Chennai',
-      quote: 'Loved bringing my 8-year-old daughter for her very first organized run in Besant Nagar. Safe traffic-free roads, friendly volunteers cheering her name, and gorgeous medals we will treasure.'
+      avatar: 'https://i.pravatar.cc/120?img=12',
+      quote: 'Well-organised route, timely hydration points and a really friendly crowd. Finishing at sunrise was unforgettable.'
+    },
+    {
+      name: 'Meenakshi Sundaram',
+      category: '3K Run',
+      city: 'Madurai',
+      avatar: 'https://i.pravatar.cc/120?img=47',
+      quote: 'I started as a weekend walker and crossed the finish line with a smile. The volunteers kept the energy high throughout.'
+    },
+    {
+      name: 'Arun Prakash',
+      category: '10K Run',
+      city: 'Coimbatore',
+      avatar: 'https://i.pravatar.cc/120?img=33',
+      quote: 'Timing chip worked perfectly and the fees were exactly as published. No hidden charges, which is rare for events.'
+    },
+    {
+      name: 'Divya Lakshmi',
+      category: '1K Fun Run',
+      city: 'Tiruchirappalli',
+      avatar: 'https://i.pravatar.cc/120?img=45',
+      quote: 'Brought my kids for the fun run and they loved it. Safe, cheerful and perfect for families.'
+    },
+    {
+      name: 'Senthil Kumar',
+      category: 'Half Marathon',
+      city: 'Salem',
+      avatar: 'https://i.pravatar.cc/120?img=15',
+      quote: 'Great pacers and cheer zones all along the course. It pushed me to a new personal best.'
+    },
+    {
+      name: 'Anitha Ramesh',
+      category: '5K Run',
+      city: 'Tirunelveli',
+      avatar: 'https://i.pravatar.cc/120?img=44',
+      quote: 'Registration was simple and the race-day support was excellent. Already signed up for the next one.'
     }
   ];
 
   return (
     <div className="page-wrapper community-page">
 
-      {/* ── FULL-SCREEN HERO ── */}
       <section className="page-hero">
         <div
           className="page-hero-bg"
           style={{ backgroundImage: `url('${IMG_HERO_BG}')` }}
         />
         <div className="page-hero-inner">
-          {/* LEFT */}
           <div className="page-hero-content">
             <div className="page-hero-badge">
               <FaUsers />
@@ -162,7 +192,7 @@ export default function Community() {
               Run Together.<br /><span>Grow Together.</span>
             </h1>
             <p className="page-hero-subtitle">
-              A vibrant community of weekend walkers, fitness enthusiasts, volunteer pacers, and seasoned marathoners cheering each other on in Chennai.
+              A vibrant community of weekend walkers, fitness enthusiasts, volunteer pacers, and seasoned marathoners cheering each other on across India.
             </p>
             <div className="page-hero-actions">
               <Link to="/register" className="btn btn-primary btn-large">
@@ -174,13 +204,12 @@ export default function Community() {
               </a>
             </div>
             <div className="page-hero-highlights">
-              <span className="page-hero-highlight"><FaCircleCheck /> Chennai Hub</span>
+              <span className="page-hero-highlight"><FaCircleCheck /> Community Hub</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Free Weekly Shakeout Runs</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Certified Pacer Squad</span>
             </div>
           </div>
 
-          {/* RIGHT */}
           <div className="page-hero-image-wrap">
             <div className="page-hero-stat-card">
               <span className="stat-num">180+</span>
@@ -189,70 +218,14 @@ export default function Community() {
             <div className="page-hero-image-frame">
               <img
                 src={IMG_HERO_SIDE}
-                alt="Marathon runners in Chennai"
+                alt="Marathon runners at the start line"
                 className="page-hero-img"
               />
-              <div className="page-hero-img-caption">
-                <FaLocationDot /> Chennai
-              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ── CHENNAI CHAPTER (WEEKLY MEETUPS) ── */}
-      <section id="chapters" className="section">
-        <div className="content-container">
-          <div className="section-header">
-            <span className="section-eyebrow">Local Running Hub</span>
-            <h2 className="section-title">Chennai Running Chapter</h2>
-            <p className="section-subtitle">
-              Join free weekly weekend morning shakeout runs. All fitness levels and paces are warmly welcomed.
-            </p>
-          </div>
-
-          <div
-            className="chapters-grid"
-            style={{ gridTemplateColumns: 'minmax(280px, 560px)', justifyContent: 'center' }}
-          >
-            {cityChapters.map((ch, idx) => (
-              <div key={idx} className="chapter-card">
-                <div className="chapter-city-header">
-                  <h3 className="chapter-city-name">{ch.city}</h3>
-                  <span className="chapter-members-count">{ch.members}</span>
-                </div>
-                <h4 className="chapter-hub-title">{ch.hub}</h4>
-
-                <div className="chapter-details-list">
-                  <div className="chapter-detail-row">
-                    <FaClock />
-                    <span><strong>When:</strong> {ch.timing}</span>
-                  </div>
-                  <div className="chapter-detail-row">
-                    <FaLocationDot />
-                    <span><strong>Meetup:</strong> {ch.location}</span>
-                  </div>
-                  <div className="chapter-detail-row">
-                    <FaPersonRunning />
-                    <span><strong>Pace Groups:</strong> {ch.paces.join(', ')}</span>
-                  </div>
-                  <div className="chapter-detail-row">
-                    <FaUsers />
-                    <span><strong>Lead:</strong> {ch.coordinator}</span>
-                  </div>
-                </div>
-
-                <Link to="/contact" className="btn btn-outline btn-block" style={{ marginTop: 'auto' }}>
-                  <span>Join {ch.city} Chapter</span>
-                  <FaArrowRight className="btn-icon" />
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── OFFICIAL PACER SQUAD ── */}
       <section className="section bg-surface">
         <div className="content-container">
           <div className="section-header">
@@ -276,7 +249,6 @@ export default function Community() {
         </div>
       </section>
 
-      {/* ── VOLUNTEER CREW PROGRAM ── */}
       <section className="section">
         <div className="content-container">
           <div className="section-header">
@@ -318,7 +290,6 @@ export default function Community() {
         </div>
       </section>
 
-      {/* ── PHOTO GALLERY GRID ── */}
       <section className="section bg-surface">
         <div className="content-container">
           <div className="section-header">
@@ -343,7 +314,6 @@ export default function Community() {
         </div>
       </section>
 
-      {/* ── PARTICIPANT VOICES (TESTIMONIALS) ── */}
       <section className="section">
         <div className="content-container">
           <div className="section-header">
@@ -354,27 +324,33 @@ export default function Community() {
             </p>
           </div>
 
-          <div
-            className="testimonials-grid"
-            style={{ gridTemplateColumns: 'minmax(280px, 640px)', justifyContent: 'center' }}
-          >
+          <div className="testimonials-grid">
             {testimonials.map((t, idx) => (
               <div key={idx} className="testimonial-card">
                 <FaQuoteLeft className="testimonial-quote-icon" />
                 <p className="testimonial-quote">"{t.quote}"</p>
-                <div className="testimonial-author">
-                  <div className="author-name">{t.name} <span className="sample-badge">(Verified Runner)</span></div>
-                  <div className="author-meta">{t.category} • {t.city}</div>
+                <div
+                  className="testimonial-author"
+                  style={{ display: 'flex', alignItems: 'center', gap: '12px' }}
+                >
+                  <img
+                    src={t.avatar}
+                    alt={t.name}
+                    style={{ width: 48, height: 48, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                  />
+                  <div>
+                    <div className="author-name">{t.name} <span className="sample-badge">(Verified Runner)</span></div>
+                    <div className="author-meta">{t.category} • {t.city}</div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Action Callout Banner */}
           <div className="community-cta-banner">
             <div className="community-cta-text">
               <h3>Become Part of the Next Running Chapter</h3>
-              <p>Reserve your bib number today and join our expanding community of active runners in Chennai.</p>
+              <p>Reserve your bib number today and join our expanding community of active runners across India.</p>
             </div>
             <Link to="/register" className="btn btn-primary btn-large">
               <span>REGISTER NOW</span>
@@ -383,7 +359,6 @@ export default function Community() {
           </div>
         </div>
       </section>
-
     </div>
   );
 }
