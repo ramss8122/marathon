@@ -18,6 +18,7 @@ import adminRoutes from './routes/adminRoutes.js';
 import transparencyRoutes from './routes/transparencyRoutes.js';
 import cityRoutes from './routes/cityRoutes.js';
 import emailRoutes from './routes/emailRoutes.js';
+import donationRoutes from './routes/donationRoutes.js';
 import { seedDefaultCities } from './controllers/cityController.js';
 import { assertAdminConfig } from './controllers/adminController.js';
 
@@ -158,6 +159,7 @@ app.use('/api/contact', contactRoutes);
 app.use('/api/transparency', transparencyRoutes);
 app.use('/api/cities', cityRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/donations', donationRoutes);
 
 // Root informational endpoint
 app.get('/', (req, res) => {

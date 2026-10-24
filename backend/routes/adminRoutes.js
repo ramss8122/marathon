@@ -36,6 +36,10 @@ import {
   adminToggleCityStatus,
   adminDeleteCity
 } from '../controllers/cityController.js';
+import {
+  adminGetDonations,
+  adminGetDonationById
+} from '../controllers/donationController.js';
 import { requireAdminAuth } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -87,5 +91,9 @@ router.post('/cities',              adminCreateCity);        // POST /api/admin/
 router.put('/cities/:id',           adminUpdateCity);        // PUT  /api/admin/cities/:id
 router.patch('/cities/:id/status',  adminToggleCityStatus); // PATCH /api/admin/cities/:id/status
 router.delete('/cities/:id',        adminDeleteCity);        // DELETE /api/admin/cities/:id
+
+// Donations Management
+router.get('/donations', adminGetDonations);
+router.get('/donations/:id', adminGetDonationById);
 
 export default router;

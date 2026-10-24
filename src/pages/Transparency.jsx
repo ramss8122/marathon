@@ -18,16 +18,22 @@ import {
   FaUsers,
   FaRotate,
   FaCircleExclamation,
-  FaDatabase
+  FaDatabase,
+  FaHeart,
+  FaIndianRupeeSign,
+  FaClock,
+  FaCreditCard
 } from 'react-icons/fa6';
 import { RACE_PACKAGES } from '../data/marathonData';
 import CitySelectModal from '../components/CitySelectModal';
+import DonationModal from '../components/DonationModal';
 
 export default function Transparency() {
   const [stats, setStats] = useState(null);
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [donationModalOpen, setDonationModalOpen] = useState(false);
 
   // ── CITY SELECTION MODAL ──
   const [cityModalOpen, setCityModalOpen] = useState(false);
@@ -279,48 +285,154 @@ export default function Transparency() {
       {/* ── LIVE AUDIT LEDGER & DATABASE STATS ── */}
       <section className="section transparency-live-section" style={{ paddingBottom: '1rem' }}>
         <div className="content-container">
-          <div className="transparency-ledger-card">
-            <div className="transparency-ledger-head">
-              <div className="transparency-ledger-badge">
-                <FaDatabase />
-                <span>Live Event Audit Ledger</span>
+          <div className="transparency-ledger-head" style={{ marginBottom: '2rem' }}>
+            <div className="transparency-ledger-badge">
+              <FaDatabase />
+              <span>Live Event Audit Ledger</span>
+            </div>
+            <h2 className="transparency-ledger-title">Transparency</h2>
+            <p className="transparency-ledger-desc">
+              We believe in complete transparency. Here you can view real-time registration data, payment status and donation records from our MongoDB database.
+            </p>
+          </div>
+
+          {/* 1. REGISTRATION TRANSPARENCY CARD */}
+          <div className="transparency-ledger-card" style={{ marginBottom: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(167, 25, 32, 0.1)', color: 'var(--color-crimson, #A71920)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>
+                  <FaUsers />
+                </div>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-dark-gray, #1E1214)' }}>
+                  Registration Transparency
+                </h3>
               </div>
-              <h2 className="transparency-ledger-title">Real-Time Registration Metrics</h2>
-              <p className="transparency-ledger-desc">
-                Public verification counts pulled directly from our MongoDB participant registry. We display live, unmanipulated records to guarantee honest reporting.
-              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                <span className="live-indicator" style={{ fontSize: '0.82rem' }}>
+                  <span className="live-indicator-dot" /> Live MongoDB Database
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={fetchStats}
+                  disabled={statsLoading}
+                  style={{ padding: '0.3rem 0.75rem', fontSize: '0.78rem' }}
+                >
+                  <FaRotate className={statsLoading ? 'spinning' : ''} />
+                  <span>Refresh</span>
+                </button>
+              </div>
             </div>
 
-            <div className="transparency-stats-grid">
+            <div className="transparency-stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
               <div className="stat-card">
                 <div className="stat-icon-wrap"><FaUsers /></div>
                 <div className="stat-number">
                   {statsLoading ? '...' : (stats ? stats.totalRegistrations : '—')}
                 </div>
-                <div className="stat-label">Total Entries Submitted</div>
-                <span className="stat-note">(Live Verified Count)</span>
+                <div className="stat-label">Total Registrations</div>
+                <span className="stat-note">(All Participant Entries)</span>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon-wrap"><FaCircleCheck /></div>
+                <div className="stat-icon-wrap" style={{ color: '#D97706' }}><FaClock /></div>
+                <div className="stat-number">
+                  {statsLoading ? '...' : (stats ? (stats.pendingRegistrations ?? 0) : '—')}
+                </div>
+                <div className="stat-label">Pending Registrations</div>
+                <span className="stat-note">(Awaiting Verification)</span>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon-wrap" style={{ color: '#15803D' }}><FaCircleCheck /></div>
                 <div className="stat-number">
                   {statsLoading ? '...' : (stats ? stats.confirmedRegistrations : '—')}
                 </div>
-                <div className="stat-label">Confirmed Runners</div>
+                <div className="stat-label">Confirmed Registrations</div>
                 <span className="stat-note">(Bib Allocated)</span>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon-wrap"><FaShieldHalved /></div>
+                <div className="stat-icon-wrap"><FaCreditCard /></div>
                 <div className="stat-number">
                   {statsLoading ? '...' : (stats ? stats.completedPayments : '—')}
                 </div>
                 <div className="stat-label">Completed Payments</div>
-                <span className="stat-note">(Reconciled Online)</span>
+                <span className="stat-note">(Verified Online)</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 2. DONATION TRANSPARENCY CARD */}
+          <div id="donations" className="transparency-ledger-card">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(167, 25, 32, 0.1)', color: 'var(--color-crimson, #A71920)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>
+                  <FaHeart />
+                </div>
+                <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-dark-gray, #1E1214)' }}>
+                  Donation Transparency
+                </h3>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                <span className="live-indicator" style={{ fontSize: '0.82rem' }}>
+                  <span className="live-indicator-dot" /> Live MongoDB Database
+                </span>
+                <button
+                  type="button"
+                  className="btn btn-outline btn-sm"
+                  onClick={fetchStats}
+                  disabled={statsLoading}
+                  style={{ padding: '0.3rem 0.75rem', fontSize: '0.78rem' }}
+                >
+                  <FaRotate className={statsLoading ? 'spinning' : ''} />
+                  <span>Refresh</span>
+                </button>
               </div>
             </div>
 
-            <div className="transparency-ledger-actions" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div className="transparency-stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+              <div className="stat-card">
+                <div className="stat-icon-wrap"><FaUsers /></div>
+                <div className="stat-number">
+                  {statsLoading ? '...' : (stats ? (stats.totalDonors ?? 0) : '0')}
+                </div>
+                <div className="stat-label">Total Donors</div>
+                <span className="stat-note">(Verified Contributors)</span>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon-wrap" style={{ color: 'var(--color-crimson, #A71920)' }}><FaIndianRupeeSign /></div>
+                <div className="stat-number">
+                  {statsLoading ? '...' : (stats ? `₹${(stats.totalDonationsReceived || 0).toLocaleString('en-IN')}` : '₹0')}
+                </div>
+                <div className="stat-label">Total Donations Received</div>
+                <span className="stat-note">(100% Traceable Funds)</span>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon-wrap" style={{ color: 'var(--color-crimson, #A71920)' }}><FaHeart /></div>
+                <div className="stat-number">
+                  {statsLoading ? '...' : (stats ? (stats.successfulDonations ?? 0) : '0')}
+                </div>
+                <div className="stat-label">Successful Donations</div>
+                <span className="stat-note">(Settled & Reconciled)</span>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '1.75rem', display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => setDonationModalOpen(true)}
+                style={{ padding: '0.75rem 1.6rem', fontSize: '0.95rem' }}
+              >
+                <span>Donate Now</span>
+                <FaArrowRight className="btn-icon" />
+              </button>
+            </div>
+
+            <div className="transparency-ledger-actions" style={{ marginTop: '1.5rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color, #E8DCD9)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
               <div style={{ fontSize: '0.82rem', color: statsError ? '#DC2626' : '#15803D', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                 {statsError ? (
                   <>
@@ -334,15 +446,6 @@ export default function Transparency() {
                   </>
                 )}
               </div>
-              <button
-                type="button"
-                className="btn btn-outline btn-sm"
-                onClick={fetchStats}
-                disabled={statsLoading}
-              >
-                <FaRotate className={statsLoading ? 'spinning' : ''} />
-                <span>{statsLoading ? 'Refreshing...' : 'Refresh Metrics'}</span>
-              </button>
             </div>
           </div>
         </div>
@@ -490,6 +593,12 @@ export default function Transparency() {
         category={selectedCategoryForModal}
       />
 
+      {/* ── DONATION MODAL ── */}
+      <DonationModal
+        isOpen={donationModalOpen}
+        onClose={() => setDonationModalOpen(false)}
+        onDonationSuccess={fetchStats}
+      />
     </div>
   );
 }

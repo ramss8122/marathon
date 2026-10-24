@@ -1,4 +1,5 @@
 import Registration from '../models/Registration.js';
+import Donation from '../models/Donation.js';
 import { isDbReady } from '../config/db.js';
 
 export const getTransparencyStats = async (req, res) => {
@@ -6,7 +7,7 @@ export const getTransparencyStats = async (req, res) => {
     if (!isDbReady()) {
       return res.status(503).json({
         success: false,
-        message: 'Database is currently unavailable. Live registration counts cannot be fetched.'
+        message: 'Database is currently unavailable. Live counts cannot be fetched.'
       });
     }
 
@@ -14,13 +15,25 @@ export const getTransparencyStats = async (req, res) => {
       totalRegistrations,
       pendingRegistrations,
       confirmedRegistrations,
-      completedPayments
+      completedPayments,
+      uniqueDonors,
+      totalDonationSum,
+      successfulDonations
     ] = await Promise.all([
       Registration.countDocuments(),
       Registration.countDocuments({ registrationStatus: 'Pending' }),
       Registration.countDocuments({ registrationStatus: 'Confirmed' }),
-      Registration.countDocuments({ paymentStatus: 'Paid' })
+      Registration.countDocuments({ paymentStatus: 'Paid' }),
+      Donation.distinct('email', { status: 'Successful' }),
+      Donation.aggregate([
+        { $match: { status: 'Successful' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ]),
+      Donation.countDocuments({ status: 'Successful' })
     ]);
+
+    const totalDonors = uniqueDonors ? uniqueDonors.length : 0;
+    const totalDonationsReceived = totalDonationSum && totalDonationSum.length > 0 ? totalDonationSum[0].total : 0;
 
     res.json({
       success: true,
@@ -28,7 +41,10 @@ export const getTransparencyStats = async (req, res) => {
         totalRegistrations,
         pendingRegistrations,
         confirmedRegistrations,
-        completedPayments
+        completedPayments,
+        totalDonors,
+        totalDonationsReceived,
+        successfulDonations: successfulDonations || 0
       },
       updatedAt: new Date().toISOString()
     });

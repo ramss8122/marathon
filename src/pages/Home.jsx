@@ -17,7 +17,9 @@ import {
   FaXmark,
   FaLocationDot as FaPin,
   FaCalendarDays as FaCal,
-  FaCircleCheck as FaRadioOn
+  FaCircleCheck as FaRadioOn,
+  FaHeart,
+  FaIndianRupeeSign
 } from 'react-icons/fa6';
 import { RACE_PACKAGES } from '../data/marathonData';
 import CityTicketCard from '../components/CityTicketCard';
@@ -570,6 +572,83 @@ export default function Home() {
               <span className="transparency-stat-sub">
                 Successfully verified entrant transactions
               </span>
+            </div>
+          </div>
+
+          {/* COMPACT OUR DONATION IMPACT CARD */}
+          <div className="transparency-ledger-card" style={{ marginTop: '1.75rem', marginBottom: '1.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem', marginBottom: '1.25rem' }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', marginBottom: '0.25rem' }}>
+                  <div style={{ width: '32px', height: '32px', borderRadius: '8px', background: 'rgba(167, 25, 32, 0.1)', color: 'var(--color-crimson, #A71920)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1rem' }}>
+                    <FaHeart />
+                  </div>
+                  <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 800, color: 'var(--color-dark-gray, #1E1214)' }}>
+                    Our Donation Impact
+                  </h3>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.88rem', color: 'var(--text-muted, #6E5658)' }}>
+                  Together we make a difference. Your support helps us create lasting change.
+                </p>
+              </div>
+              <Link
+                to="/transparency#donations"
+                className="btn btn-outline btn-sm"
+                style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem' }}
+              >
+                <span>View Details</span>
+              </Link>
+            </div>
+
+            <div className="transparency-stats-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+              <div className="transparency-stat-card">
+                <div className="transparency-stat-number">
+                  {statsLoading ? (
+                    <span className="stat-loading-pulse">...</span>
+                  ) : (
+                    stats?.totalDonors ?? 0
+                  )}
+                </div>
+                <div className="transparency-stat-label">Total Donors</div>
+              </div>
+
+              <div className="transparency-stat-card">
+                <div className="transparency-stat-number" style={{ color: 'var(--color-crimson, #A71920)' }}>
+                  {statsLoading ? (
+                    <span className="stat-loading-pulse">...</span>
+                  ) : (
+                    `₹${(stats?.totalDonationsReceived || 0).toLocaleString('en-IN')}`
+                  )}
+                </div>
+                <div className="transparency-stat-label">Total Donations Received</div>
+              </div>
+
+              <div className="transparency-stat-card">
+                <div className="transparency-stat-number" style={{ color: 'var(--color-crimson, #A71920)' }}>
+                  {statsLoading ? (
+                    <span className="stat-loading-pulse">...</span>
+                  ) : (
+                    stats?.successfulDonations ?? 0
+                  )}
+                </div>
+                <div className="transparency-stat-label">Successful Donations</div>
+              </div>
+            </div>
+
+            <div style={{ marginTop: '1.25rem', paddingTop: '1rem', borderTop: '1px solid var(--border-color, #E8DCD9)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+              <span className="live-indicator" style={{ fontSize: '0.82rem' }}>
+                <span className="live-indicator-dot" /> MongoDB Database Online • Synced {lastUpdated || 'just now'}
+              </span>
+              <button
+                type="button"
+                onClick={fetchStats}
+                className="btn btn-outline btn-sm"
+                style={{ padding: '0.35rem 0.85rem', fontSize: '0.8rem' }}
+                title="Refresh live metrics"
+              >
+                <FaArrowsRotate className={statsLoading ? 'fa-spin' : ''} />
+                <span>Refresh Metrics</span>
+              </button>
             </div>
           </div>
 

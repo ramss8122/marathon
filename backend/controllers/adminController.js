@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import Registration from '../models/Registration.js';
 import ContactMessage from '../models/ContactMessage.js';
+import Donation from '../models/Donation.js';
 import { isDbReady } from '../config/db.js';
 
 /**
@@ -122,7 +123,10 @@ export const getAdminStats = async (req, res) => {
       successfulPayments,
       pendingPayments,
       totalContactMessages,
-      unreadContactMessages
+      unreadContactMessages,
+      totalDonations,
+      successfulDonations,
+      totalDonationSum
     ] = await Promise.all([
       Registration.countDocuments(),
       Registration.countDocuments({ registrationStatus: 'Confirmed' }),
@@ -130,8 +134,16 @@ export const getAdminStats = async (req, res) => {
       Registration.countDocuments({ paymentStatus: 'Paid' }),
       Registration.countDocuments({ paymentStatus: 'Pending' }),
       ContactMessage.countDocuments(),
-      ContactMessage.countDocuments({ isRead: false })
+      ContactMessage.countDocuments({ isRead: false }),
+      Donation.countDocuments(),
+      Donation.countDocuments({ status: 'Successful' }),
+      Donation.aggregate([
+        { $match: { status: 'Successful' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } }
+      ])
     ]);
+
+    const totalDonationsReceived = totalDonationSum && totalDonationSum.length > 0 ? totalDonationSum[0].total : 0;
 
     res.json({
       success: true,
@@ -142,7 +154,10 @@ export const getAdminStats = async (req, res) => {
         successfulPayments,
         pendingPayments,
         totalContactMessages,
-        unreadContactMessages
+        unreadContactMessages,
+        totalDonations,
+        successfulDonations,
+        totalDonationsReceived
       },
       isDbConnected: true
     });

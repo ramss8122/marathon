@@ -28,13 +28,15 @@ import {
   FaToggleOn,
   FaToggleOff,
   FaChevronDown,
-  FaChevronUp
+  FaChevronUp,
+  FaHeart
 } from 'react-icons/fa6';
 import Logo from '../../components/Logo';
 import { exportRegistrationsToExcel } from '../../utils/exportToExcel';
 import AddRegistrationModal from './AddRegistrationModal';
 import EmailMarketing from './EmailMarketing';
 import Settings from './Settings';
+import DonationManagement from './DonationManagement';
 import adminFetch from '../../utils/adminFetch';
 import { getCityDisplayName } from '../../utils/cityHelper';
 
@@ -50,6 +52,7 @@ export default function AdminLayout() {
   // Options: 'dashboard', 'registrations', 'cities', 'pending', 'payments', 'messages', 'email-marketing'
   const getSectionFromPath = (path) => {
     if (path.includes('/admin/registrations')) return 'registrations';
+    if (path.includes('/admin/donations')) return 'donations';
     if (path.includes('/admin/cities')) return 'cities';
     if (path.includes('/admin/pending')) return 'pending';
     if (path.includes('/admin/payments')) return 'payments';
@@ -692,6 +695,18 @@ export default function AdminLayout() {
 
             <button
               type="button"
+              className={`sidebar-nav-item ${activeSection === 'donations' ? 'active' : ''}`}
+              onClick={() => navigateTo('donations')}
+            >
+              <FaHeart className="sidebar-icon" />
+              <span>Donations</span>
+              {stats.successfulDonations > 0 && (
+                <span className="sidebar-count-badge">{stats.successfulDonations}</span>
+              )}
+            </button>
+
+            <button
+              type="button"
               className={`sidebar-nav-item ${activeSection === 'cities' ? 'active' : ''}`}
               onClick={() => navigateTo('cities')}
             >
@@ -786,6 +801,7 @@ export default function AdminLayout() {
               <h1 className="admin-page-title">
                 {activeSection === 'dashboard' && 'Dashboard Overview'}
                 {activeSection === 'registrations' && 'Registered Participants'}
+                {activeSection === 'donations' && 'Donation Management'}
                 {activeSection === 'cities' && 'Event Cities Management'}
                 {activeSection === 'pending' && 'Pending Registrations & Payments'}
                 {activeSection === 'payments' && 'Payment & Transaction Management'}
@@ -794,6 +810,7 @@ export default function AdminLayout() {
               <p className="admin-page-sub">
                 {activeSection === 'dashboard' && 'Live event statistics, registration activity, and messages.'}
                 {activeSection === 'registrations' && 'Complete roster of runners across all distance categories.'}
+                {activeSection === 'donations' && 'Track public donations, donor records, and verified payment gateway transactions.'}
                 {activeSection === 'cities' && 'Configure marathon host cities, course badges, venues, and event images.'}
                 {activeSection === 'pending' && 'Participants awaiting payment confirmation or race-kit allocation.'}
                 {activeSection === 'payments' && 'Financial overview of entry fees collected and pending receipts.'}
@@ -1816,6 +1833,15 @@ export default function AdminLayout() {
           {activeSection === 'settings' && (
             <div className="admin-content-section">
               <Settings cities={cities} />
+            </div>
+          )}
+
+          {/* ══════════════════════════════════════════
+              VIEW: DONATIONS MANAGEMENT
+             ══════════════════════════════════════════ */}
+          {activeSection === 'donations' && (
+            <div className="admin-content-section">
+              <DonationManagement />
             </div>
           )}
         </main>
