@@ -189,13 +189,13 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="hero-floating-card hero-floating-card-bottom">
-                <div className="hero-pulse-dot" aria-hidden="true"></div>
-                <div className="floating-card-text">
-                  <span className="floating-card-title">Next Race: 15 Nov</span>
-                  <span className="floating-card-sub">Chennai Coastal 21K</span>
-                </div>
-              </div>
+             <div className="hero-floating-card hero-floating-card-bottom">
+  <div className="hero-pulse-dot" aria-hidden="true"></div>
+  <div className="floating-card-text">
+    <span className="floating-card-title">Next Race: 15 Nov</span>
+    <span className="floating-card-sub">Choose Your City &amp; Distance</span>
+  </div>
+</div>
             </div>
           </div>
         </div>
