@@ -2207,8 +2207,12 @@ export default function AdminLayout() {
          ══════════════════════════════════════════ */}
       {isCityModalOpen && (
         <div className="admin-modal-backdrop" onClick={() => setIsCityModalOpen(false)}>
-          <div className="admin-modal-card" style={{ maxWidth: '680px' }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
+          <div
+            className="admin-modal-card"
+            style={{ maxWidth: '680px', maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header" style={{ flexShrink: 0 }}>
               <div className="modal-header-title">
                 <FaLocationDot className="modal-icon gold" />
                 <div>
@@ -2228,8 +2232,14 @@ export default function AdminLayout() {
               </button>
             </div>
 
-            <form onSubmit={handleSaveCity}>
-              <div className="modal-body" style={{ maxHeight: '72vh', overflowY: 'auto', padding: '18px 22px' }}>
+            <form
+              onSubmit={handleSaveCity}
+              style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden', margin: 0 }}
+            >
+              <div
+                className="modal-body"
+                style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '18px 22px' }}
+              >
                 {/* 1. City Name & Suggestions */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '14px' }}>
                   <div className="form-group">
@@ -2667,7 +2677,7 @@ export default function AdminLayout() {
                 </div>
               </div>
 
-              <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '14px 20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+              <div className="modal-footer" style={{ flexShrink: 0, borderTop: '1px solid #e2e8f0', padding: '14px 20px', display: 'flex', justifyContent: 'flex-end', gap: '10px', background: '#FAF8F5', position: 'sticky', bottom: 0, zIndex: 10 }}>
                 <button
                   type="button"
                   className="btn btn-outline btn-sm"

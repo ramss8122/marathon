@@ -6037,6 +6037,15 @@ p {
   max-height: 90vh;
 }
 
+.admin-modal-card > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  margin: 0;
+}
+
 .modal-header {
   padding: 1.25rem 1.5rem;
   background: #FAF8F5;
@@ -6199,6 +6208,10 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-shrink: 0;
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
 }
 
 .modal-footer-left {
