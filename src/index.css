@@ -3330,10 +3330,11 @@ p {
   grid-template-columns: 1fr 1fr;
   gap: 3rem;
   align-items: center;
-  background: linear-gradient(135deg, #1C1C1E 0%, #2a2410 100%);
+  background: var(--bg-card, #FFFFFF);
+  border: 1px solid var(--border-color, #E8DCD9);
   border-radius: 24px;
   padding: 3.5rem 3rem;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2), 0 0 0 1px rgba(158, 27, 34,0.15);
+  box-shadow: 0 10px 30px rgba(167, 25, 32, 0.08);
   overflow: hidden;
   position: relative;
 }
@@ -3345,7 +3346,7 @@ p {
   right: -60px;
   width: 280px;
   height: 280px;
-  background: radial-gradient(circle, rgba(158, 27, 34,0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(167, 25, 32, 0.05) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -3358,27 +3359,27 @@ p {
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: rgba(158, 27, 34,0.18);
-  border: 1px solid rgba(158, 27, 34,0.3);
+  background: rgba(167, 25, 32, 0.08);
+  border: 1px solid rgba(167, 25, 32, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.6rem;
-  color: #9E1B22;
+  color: var(--color-crimson, #A71920);
   margin-bottom: 1.25rem;
 }
 
 .about-team-title {
   font-size: clamp(1.3rem, 3vw, 1.9rem);
   font-weight: 800;
-  color: #F5F0E8;
+  color: var(--color-dark-gray, #1E1214);
   line-height: 1.25;
   margin-bottom: 1rem;
 }
 
 .about-team-desc {
   font-size: 0.97rem;
-  color: rgba(245,240,232,0.72);
+  color: var(--text-muted, #6E5658);
   line-height: 1.75;
   margin-bottom: 2rem;
 }
@@ -3389,10 +3390,22 @@ p {
   gap: 1rem;
 }
 
+.about-team-actions .btn-outline {
+  color: var(--color-dark-gray, #1E1214);
+  border: 1.5px solid var(--border-color, #E8DCD9);
+  background-color: transparent;
+}
+
+.about-team-actions .btn-outline:hover {
+  background-color: var(--color-dark-gray, #1E1214);
+  color: #FFFFFF !important;
+  border-color: var(--color-dark-gray, #1E1214);
+}
+
 .about-team-image-wrap {
   border-radius: 18px;
   overflow: hidden;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1;
 }
@@ -3402,13 +3415,12 @@ p {
   height: 280px;
   object-fit: cover;
   display: block;
-  filter: brightness(0.9);
-  transition: transform 0.5s ease, filter 0.3s ease;
+  filter: brightness(1);
+  transition: transform 0.5s ease;
 }
 
 .about-team-img:hover {
   transform: scale(1.04);
-  filter: brightness(1);
 }
 
 /* â”€â”€ FINAL CTA CARD â”€â”€ */

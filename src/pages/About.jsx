@@ -100,7 +100,7 @@ export default function About() {
             </div>
             <div className="page-hero-highlights">
               <span className="page-hero-highlight"><FaCircleCheck /> Community-Driven Events</span>
-              <span className="page-hero-highlight"><FaCircleCheck /> Active in Chennai</span>
+              <span className="page-hero-highlight"><FaCircleCheck /> Active Across India</span>
               <span className="page-hero-highlight"><FaCircleCheck /> Zero Hidden Fees</span>
             </div>
           </div>
@@ -117,9 +117,7 @@ export default function About() {
                 alt="INDIA RUNTRUST runners at the start line"
                 className="page-hero-img"
               />
-              <div className="page-hero-img-caption">
-                <FaLocationDot /> Chennai Marathon 2024
-              </div>
+             
             </div>
           </div>
         </div>
@@ -144,14 +142,7 @@ export default function About() {
                 Our events are designed to be safe, transparent, and memorable — with clearly published registration
                 fees, well-mapped routes, and dedicated support teams on every course.
               </p>
-              <div className="about-cities-row">
-                <span className="about-cities-label">
-                  <FaLocationDot className="about-cities-icon" /> Currently Active In:
-                </span>
-                <div className="about-city-tags">
-                  <span className="about-city-tag">Chennai</span>
-                </div>
-              </div>
+              
             </div>
 
             <div className="about-split-image">
