@@ -4,7 +4,9 @@ import {
   FaHeart,
   FaCircleCheck,
   FaCircleExclamation,
-  FaClock
+  FaClock,
+  FaPen,
+  FaTrash
 } from 'react-icons/fa6';
 
 export default function DonationTable({
@@ -13,6 +15,8 @@ export default function DonationTable({
   searchTerm = '',
   statusFilter = 'all',
   onView,
+  onEdit,
+  onDelete,
   formatDate,
   pagination = { total: 0, pages: 1 },
   page = 1,
@@ -158,20 +162,57 @@ export default function DonationTable({
                     {formatDate(d.paidAt || d.createdAt)}
                   </td>
                   <td>
-                    <span className="donation-gateway-ref" title={d.razorpayPaymentId || d.razorpayOrderId || '—'}>
-                      {d.razorpayPaymentId || d.razorpayOrderId || '—'}
-                    </span>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                      <span className="donation-gateway-ref" title={d.source === 'admin' ? (d.referenceNumber || d.paymentMethod || 'Manual Entry') : (d.razorpayPaymentId || d.razorpayOrderId || '—')}>
+                        {d.source === 'admin'
+                          ? (d.referenceNumber || `${d.paymentMethod || 'Manual'}`)
+                          : (d.razorpayPaymentId || d.razorpayOrderId || '—')}
+                      </span>
+                      <div>
+                        {d.source === 'admin' ? (
+                          <span className="donation-source-tag admin">Offline • {d.paymentMethod || 'Manual'}</span>
+                        ) : (
+                          <span className="donation-source-tag razorpay">Online • Razorpay</span>
+                        )}
+                      </div>
+                    </div>
                   </td>
                   <td style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-                    <button
-                      type="button"
-                      className="donation-view-btn"
-                      onClick={() => onView(d)}
-                      title="View donation details"
-                    >
-                      <FaEye />
-                      <span>View</span>
-                    </button>
+                    <div className="donation-action-group">
+                      <button
+                        type="button"
+                        className="donation-view-btn"
+                        onClick={() => onView(d)}
+                        title="View donation details"
+                      >
+                        <FaEye />
+                        <span>View</span>
+                      </button>
+
+                      {d.source === 'admin' && onEdit && (
+                        <button
+                          type="button"
+                          className="donation-edit-btn"
+                          onClick={() => onEdit(d)}
+                          title="Edit manual donation"
+                          aria-label="Edit donation"
+                        >
+                          <FaPen />
+                        </button>
+                      )}
+
+                      {d.source === 'admin' && onDelete && (
+                        <button
+                          type="button"
+                          className="donation-del-btn"
+                          onClick={() => onDelete(d)}
+                          title="Delete manual donation"
+                          aria-label="Delete donation"
+                        >
+                          <FaTrash />
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

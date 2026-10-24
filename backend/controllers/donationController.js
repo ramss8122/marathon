@@ -349,7 +349,10 @@ export const adminGetDonations = async (req, res) => {
         { email: new RegExp(term, 'i') },
         { mobileNumber: new RegExp(term, 'i') },
         { razorpayPaymentId: new RegExp(term, 'i') },
-        { razorpayOrderId: new RegExp(term, 'i') }
+        { razorpayOrderId: new RegExp(term, 'i') },
+        { referenceNumber: new RegExp(term, 'i') },
+        { paymentMethod: new RegExp(term, 'i') },
+        { notes: new RegExp(term, 'i') }
       ];
       if (!isNaN(numTerm)) {
         orClauses.push({ amount: numTerm });
@@ -361,16 +364,19 @@ export const adminGetDonations = async (req, res) => {
     const parsedLimit = Math.max(1, Math.min(100, parseInt(limit, 10) || 15));
     const skip = (parsedPage - 1) * parsedLimit;
 
-    const [donations, total, uniqueDonors, totalSuccessfulSum, successfulCount] = await Promise.all([
+    const [donations, total, uniqueDonors, noEmailCount, totalSuccessfulSum, successfulCount] = await Promise.all([
       Donation.find(query).sort({ createdAt: -1 }).skip(skip).limit(parsedLimit),
       Donation.countDocuments(query),
-      Donation.distinct('email', { status: 'Successful' }),
+      Donation.distinct('email', { status: 'Successful', email: { $exists: true, $ne: '' } }),
+      Donation.countDocuments({ status: 'Successful', $or: [{ email: '' }, { email: null }, { email: { $exists: false } }] }),
       Donation.aggregate([
         { $match: { status: 'Successful' } },
         { $group: { _id: null, total: { $sum: '$amount' } } }
       ]),
       Donation.countDocuments({ status: 'Successful' })
     ]);
+
+    const totalDonors = (uniqueDonors?.length || 0) + (noEmailCount || 0);
 
     res.json({
       success: true,
@@ -382,7 +388,7 @@ export const adminGetDonations = async (req, res) => {
         pages: Math.ceil(total / parsedLimit) || 1
       },
       stats: {
-        totalDonors: uniqueDonors.length,
+        totalDonors,
         totalDonationsReceived: totalSuccessfulSum[0]?.total || 0,
         successfulDonations: successfulCount
       }
@@ -407,3 +413,227 @@ export const adminGetDonationById = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+/**
+ * Protected Admin: Create manual/offline donation
+ */
+export const adminCreateDonation = async (req, res) => {
+  try {
+    if (!isDbReady()) {
+      return res.status(503).json({ success: false, message: 'Database is offline.' });
+    }
+
+    const {
+      fullName,
+      email,
+      mobileNumber,
+      amount,
+      paymentMethod = 'Cash',
+      referenceNumber,
+      paidAt,
+      status = 'Successful',
+      notes,
+      message,
+      isAnonymous = false
+    } = req.body;
+
+    // Validation
+    if (!fullName || typeof fullName !== 'string' || !fullName.trim()) {
+      return res.status(400).json({ success: false, message: 'Donor name is required.' });
+    }
+
+    const parsedAmount = Number(amount);
+    if (isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, message: 'Donation amount must be greater than ₹0.' });
+    }
+
+    const trimmedEmail = email && typeof email === 'string' ? email.trim().toLowerCase() : '';
+    if (trimmedEmail) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(trimmedEmail)) {
+        return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
+      }
+    }
+
+    const validStatuses = ['Successful', 'Pending', 'Failed'];
+    const chosenStatus = validStatuses.includes(status) ? status : 'Successful';
+
+    const nextDonationId = await generateDonationId();
+
+    const donation = new Donation({
+      donationId: nextDonationId,
+      fullName: fullName.trim(),
+      email: trimmedEmail,
+      mobileNumber: mobileNumber && typeof mobileNumber === 'string' ? mobileNumber.trim() : '',
+      amount: parsedAmount,
+      currency: 'INR',
+      paymentMethod: paymentMethod.trim() || 'Cash',
+      paymentGateway: 'Manual / Offline',
+      referenceNumber: referenceNumber && typeof referenceNumber === 'string' ? referenceNumber.trim() : '',
+      status: chosenStatus,
+      source: 'admin',
+      isAnonymous: Boolean(isAnonymous),
+      notes: notes && typeof notes === 'string' ? notes.trim() : '',
+      message: message && typeof message === 'string' ? message.trim() : '',
+      paidAt: paidAt ? new Date(paidAt) : (chosenStatus === 'Successful' ? new Date() : null)
+    });
+
+    await donation.save();
+
+    res.status(201).json({
+      success: true,
+      message: `Manual donation ${donation.donationId} recorded successfully.`,
+      data: donation
+    });
+  } catch (error) {
+    console.error('[Admin Create Donation Error]:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to create donation.' });
+  }
+};
+
+/**
+ * Protected Admin: Update a manual/admin donation (Razorpay records are immutable)
+ */
+export const adminUpdateDonation = async (req, res) => {
+  try {
+    if (!isDbReady()) {
+      return res.status(503).json({ success: false, message: 'Database is offline.' });
+    }
+
+    const { id } = req.params;
+    const donation = await Donation.findById(id);
+
+    if (!donation) {
+      return res.status(404).json({ success: false, message: 'Donation record not found.' });
+    }
+
+    if (donation.source !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Online Razorpay donations cannot be edited to maintain payment reconciliation integrity.'
+      });
+    }
+
+    const {
+      fullName,
+      email,
+      mobileNumber,
+      amount,
+      paymentMethod,
+      referenceNumber,
+      paidAt,
+      status,
+      notes,
+      message,
+      isAnonymous
+    } = req.body;
+
+    if (fullName !== undefined) {
+      if (!fullName || typeof fullName !== 'string' || !fullName.trim()) {
+        return res.status(400).json({ success: false, message: 'Donor name cannot be empty.' });
+      }
+      donation.fullName = fullName.trim();
+    }
+
+    if (amount !== undefined) {
+      const parsedAmount = Number(amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        return res.status(400).json({ success: false, message: 'Donation amount must be greater than ₹0.' });
+      }
+      donation.amount = parsedAmount;
+    }
+
+    if (email !== undefined) {
+      const trimmedEmail = email && typeof email === 'string' ? email.trim().toLowerCase() : '';
+      if (trimmedEmail) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(trimmedEmail)) {
+          return res.status(400).json({ success: false, message: 'Please provide a valid email address.' });
+        }
+      }
+      donation.email = trimmedEmail;
+    }
+
+    if (mobileNumber !== undefined) {
+      donation.mobileNumber = typeof mobileNumber === 'string' ? mobileNumber.trim() : '';
+    }
+
+    if (paymentMethod !== undefined) {
+      donation.paymentMethod = typeof paymentMethod === 'string' ? paymentMethod.trim() : 'Cash';
+    }
+
+    if (referenceNumber !== undefined) {
+      donation.referenceNumber = typeof referenceNumber === 'string' ? referenceNumber.trim() : '';
+    }
+
+    if (status !== undefined) {
+      const validStatuses = ['Successful', 'Pending', 'Failed'];
+      if (validStatuses.includes(status)) {
+        donation.status = status;
+      }
+    }
+
+    if (notes !== undefined) {
+      donation.notes = typeof notes === 'string' ? notes.trim() : '';
+    }
+
+    if (message !== undefined) {
+      donation.message = typeof message === 'string' ? message.trim() : '';
+    }
+
+    if (isAnonymous !== undefined) {
+      donation.isAnonymous = Boolean(isAnonymous);
+    }
+
+    if (paidAt !== undefined) {
+      donation.paidAt = paidAt ? new Date(paidAt) : null;
+    }
+
+    await donation.save();
+
+    res.json({
+      success: true,
+      message: `Donation ${donation.donationId} updated successfully.`,
+      data: donation
+    });
+  } catch (error) {
+    console.error('[Admin Update Donation Error]:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to update donation.' });
+  }
+};
+
+/**
+ * Protected Admin: Delete a manual/admin donation (Razorpay records are immutable)
+ */
+export const adminDeleteDonation = async (req, res) => {
+  try {
+    if (!isDbReady()) {
+      return res.status(503).json({ success: false, message: 'Database is offline.' });
+    }
+
+    const { id } = req.params;
+    const donation = await Donation.findById(id);
+
+    if (!donation) {
+      return res.status(404).json({ success: false, message: 'Donation record not found.' });
+    }
+
+    if (donation.source !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Online Razorpay donations cannot be deleted to preserve financial audit trails.'
+      });
+    }
+
+    await Donation.findByIdAndDelete(id);
+
+    res.json({
+      success: true,
+      message: `Manual donation ${donation.donationId} deleted successfully.`
+    });
+  } catch (error) {
+    console.error('[Admin Delete Donation Error]:', error);
+    res.status(500).json({ success: false, message: error.message || 'Failed to delete donation.' });
+  }
+};
+

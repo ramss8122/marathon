@@ -129,10 +129,16 @@ export default function DonationDetailsModal({
               </span>
             </div>
 
-            {/* Payment Gateway */}
+            {/* Payment Method / Gateway */}
             <div className="donation-info-box">
-              <span className="donation-info-label">Payment Gateway</span>
-              <span className="donation-info-value">{donation.paymentGateway || 'Razorpay'}</span>
+              <span className="donation-info-label">
+                {donation.source === 'admin' ? 'Payment Method' : 'Payment Gateway'}
+              </span>
+              <span className="donation-info-value">
+                {donation.source === 'admin'
+                  ? `${donation.paymentMethod || 'Manual'} (${donation.paymentGateway || 'Offline'})`
+                  : (donation.paymentGateway || 'Razorpay')}
+              </span>
             </div>
 
             {/* Payment Date */}
@@ -141,14 +147,44 @@ export default function DonationDetailsModal({
               <span className="donation-info-value">{formatDate(donation.paidAt || donation.createdAt)}</span>
             </div>
 
+            {/* Reference Number for Admin / Offline */}
+            {donation.source === 'admin' && donation.referenceNumber && (
+              <div className="donation-info-box full-width">
+                <span className="donation-info-label">Transaction / Reference ID</span>
+                <div className="donation-copy-row">
+                  <span className="donation-info-value" style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.84rem' }}>
+                    {donation.referenceNumber}
+                  </span>
+                  <button
+                    type="button"
+                    className="donation-copy-btn"
+                    onClick={() => handleCopy(donation.referenceNumber, 'refNum')}
+                    title="Copy Reference ID"
+                  >
+                    {copiedKey === 'refNum' ? (
+                      <>
+                        <FaCheck style={{ color: '#065F46' }} />
+                        <span style={{ color: '#065F46' }}>Copied</span>
+                      </>
+                    ) : (
+                      <>
+                        <FaCopy />
+                        <span>Copy</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Razorpay Order ID */}
-            <div className="donation-info-box full-width">
-              <span className="donation-info-label">Razorpay Order ID</span>
-              <div className="donation-copy-row">
-                <span className="donation-info-value" style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.84rem' }}>
-                  {donation.razorpayOrderId || '—'}
-                </span>
-                {donation.razorpayOrderId && (
+            {donation.razorpayOrderId && (
+              <div className="donation-info-box full-width">
+                <span className="donation-info-label">Razorpay Order ID</span>
+                <div className="donation-copy-row">
+                  <span className="donation-info-value" style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.84rem' }}>
+                    {donation.razorpayOrderId}
+                  </span>
                   <button
                     type="button"
                     className="donation-copy-btn"
@@ -167,18 +203,18 @@ export default function DonationDetailsModal({
                       </>
                     )}
                   </button>
-                )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Razorpay Payment ID */}
-            <div className="donation-info-box full-width">
-              <span className="donation-info-label">Razorpay Payment ID / Reference</span>
-              <div className="donation-copy-row">
-                <span className="donation-info-value" style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.84rem' }}>
-                  {donation.razorpayPaymentId || '—'}
-                </span>
-                {donation.razorpayPaymentId && (
+            {donation.razorpayPaymentId && (
+              <div className="donation-info-box full-width">
+                <span className="donation-info-label">Razorpay Payment ID / Reference</span>
+                <div className="donation-copy-row">
+                  <span className="donation-info-value" style={{ fontFamily: 'ui-monospace, monospace', fontSize: '0.84rem' }}>
+                    {donation.razorpayPaymentId}
+                  </span>
                   <button
                     type="button"
                     className="donation-copy-btn"
@@ -197,10 +233,20 @@ export default function DonationDetailsModal({
                       </>
                     )}
                   </button>
-                )}
+                </div>
               </div>
-            </div>
+            )}
           </div>
+
+          {/* Internal Notes (Admin) */}
+          {donation.notes && (
+            <div className="donation-info-box full-width">
+              <span className="donation-info-label">Internal Notes / Remarks</span>
+              <p style={{ margin: '0.2rem 0 0', fontSize: '0.86rem', color: 'var(--text-main, #1F1214)' }}>
+                {donation.notes}
+              </p>
+            </div>
+          )}
 
           {/* Donor Message */}
           {donation.message && (

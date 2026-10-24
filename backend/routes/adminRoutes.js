@@ -38,7 +38,10 @@ import {
 } from '../controllers/cityController.js';
 import {
   adminGetDonations,
-  adminGetDonationById
+  adminGetDonationById,
+  adminCreateDonation,
+  adminUpdateDonation,
+  adminDeleteDonation
 } from '../controllers/donationController.js';
 import { requireAdminAuth } from '../middleware/authMiddleware.js';
 
@@ -95,5 +98,8 @@ router.delete('/cities/:id',        adminDeleteCity);        // DELETE /api/admi
 // Donations Management
 router.get('/donations', adminGetDonations);
 router.get('/donations/:id', adminGetDonationById);
+router.post('/donations', adminCreateDonation);
+router.put('/donations/:id', adminUpdateDonation);
+router.delete('/donations/:id', adminDeleteDonation);
 
 export default router;

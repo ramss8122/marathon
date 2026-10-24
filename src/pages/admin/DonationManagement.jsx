@@ -6,12 +6,15 @@ import {
   FaIndianRupeeSign,
   FaUsers,
   FaCircleCheck,
-  FaCircleExclamation
+  FaCircleExclamation,
+  FaPlus,
+  FaTriangleExclamation
 } from 'react-icons/fa6';
 import adminFetch from '../../utils/adminFetch';
 import DonationStatCard from './DonationStatCard';
 import DonationTable from './DonationTable';
 import DonationDetailsModal from './DonationDetailsModal';
+import AddDonationModal from './AddDonationModal';
 
 export default function DonationManagement() {
   const [donations, setDonations] = useState([]);
@@ -30,8 +33,22 @@ export default function DonationManagement() {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ total: 0, pages: 1, limit: 15 });
 
-  // View Modal
+  // Modals & Dialogs
   const [selectedDonation, setSelectedDonation] = useState(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editingDonation, setEditingDonation] = useState(null);
+  const [deleteConfirmDonation, setDeleteConfirmDonation] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Toast Notification
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3500);
+  };
 
   const fetchDonations = useCallback(async () => {
     setLoading(true);
@@ -72,8 +89,12 @@ export default function DonationManagement() {
 
   // Apply local gateway filter if selected
   const filteredDonations = donations.filter((d) => {
-    if (gatewayFilter !== 'all' && d.paymentGateway !== gatewayFilter) {
-      return false;
+    if (gatewayFilter === 'all') return true;
+    if (gatewayFilter === 'Razorpay') {
+      return d.source === 'razorpay' || d.paymentGateway === 'Razorpay';
+    }
+    if (gatewayFilter === 'Manual') {
+      return d.source === 'admin' || d.paymentGateway === 'Manual / Offline';
     }
     return true;
   });
@@ -94,8 +115,41 @@ export default function DonationManagement() {
     }
   };
 
+  // Delete manual donation handler
+  const handleConfirmDelete = async () => {
+    if (!deleteConfirmDonation) return;
+    setIsDeleting(true);
+    try {
+      const res = await adminFetch(`/api/admin/donations/${deleteConfirmDonation._id}`, {
+        method: 'DELETE'
+      });
+      const json = await res.json().catch(() => ({}));
+
+      if (res.ok && json.success) {
+        showToast(`Manual donation ${deleteConfirmDonation.donationId} deleted successfully.`, 'success');
+        setDeleteConfirmDonation(null);
+        fetchDonations();
+      } else {
+        showToast(json.message || 'Could not delete donation record.', 'error');
+      }
+    } catch (err) {
+      console.error('Delete donation error:', err);
+      showToast('Network error while deleting donation.', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="donation-management-wrapper">
+      {/* Floating Toast Notification */}
+      {toast && (
+        <div className={`donation-toast ${toast.type}`}>
+          {toast.type === 'success' ? <FaCircleCheck /> : <FaCircleExclamation />}
+          <span>{toast.message}</span>
+        </div>
+      )}
+
       {/* 1. Overview Stat Cards */}
       <div className="donation-stats-grid">
         <DonationStatCard
@@ -137,10 +191,20 @@ export default function DonationManagement() {
             </p>
           </div>
 
-          {/* Reserved slot for Add Donation button in next prompt + Refresh */}
+          {/* Action Toolbar Right: Add Donation + Refresh */}
           <div className="donation-toolbar-right">
-            {/* Slot for future Add Donation button */}
-            <div id="add-donation-slot" />
+            <button
+              type="button"
+              className="donation-add-btn"
+              onClick={() => {
+                setEditingDonation(null);
+                setIsAddModalOpen(true);
+              }}
+              title="Add manual or offline donation record"
+            >
+              <FaPlus />
+              <span>Add Donation</span>
+            </button>
 
             <button
               type="button"
@@ -164,7 +228,7 @@ export default function DonationManagement() {
               <input
                 type="text"
                 className="donation-search-input"
-                placeholder="Search by name, email, amount, ID..."
+                placeholder="Search by name, email, amount, ID, ref..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -199,15 +263,16 @@ export default function DonationManagement() {
               <option value="Failed">Failed</option>
             </select>
 
-            {/* Filter: Gateway */}
+            {/* Filter: Gateway / Source */}
             <select
               className="donation-select"
               value={gatewayFilter}
               onChange={(e) => setGatewayFilter(e.target.value)}
-              aria-label="Filter by payment gateway"
+              aria-label="Filter by payment gateway or source"
             >
-              <option value="all">All Payment Gateway</option>
-              <option value="Razorpay">Razorpay</option>
+              <option value="all">All Sources &amp; Gateways</option>
+              <option value="Razorpay">Online (Razorpay)</option>
+              <option value="Manual">Offline / Manual (Admin)</option>
             </select>
           </div>
         </div>
@@ -239,6 +304,11 @@ export default function DonationManagement() {
           searchTerm={searchTerm}
           statusFilter={statusFilter}
           onView={(d) => setSelectedDonation(d)}
+          onEdit={(d) => {
+            setEditingDonation(d);
+            setIsAddModalOpen(true);
+          }}
+          onDelete={(d) => setDeleteConfirmDonation(d)}
           formatDate={formatDate}
           pagination={pagination}
           page={page}
@@ -246,13 +316,97 @@ export default function DonationManagement() {
         />
       </div>
 
-      {/* 3. Details Modal Component */}
+      {/* 3. Add / Edit Donation Modal */}
+      <AddDonationModal
+        isOpen={isAddModalOpen}
+        editingDonation={editingDonation}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditingDonation(null);
+        }}
+        onSuccess={(msg) => {
+          showToast(msg, 'success');
+          fetchDonations();
+        }}
+      />
+
+      {/* 4. Details View Modal Component */}
       {selectedDonation && (
         <DonationDetailsModal
           donation={selectedDonation}
           onClose={() => setSelectedDonation(null)}
           formatDate={formatDate}
         />
+      )}
+
+      {/* 5. Delete Confirmation Dialog for Admin Donations */}
+      {deleteConfirmDonation && (
+        <div
+          className="admin-modal-backdrop"
+          onClick={() => !isDeleting && setDeleteConfirmDonation(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="donation-modal-card"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '440px' }}
+          >
+            <div className="donation-modal-header" style={{ background: 'linear-gradient(135deg, #7F1D1D 0%, #450A0A 100%)' }}>
+              <div className="donation-modal-header-left">
+                <div className="donation-modal-icon-badge" style={{ background: 'rgba(255,255,255,0.2)' }}>
+                  <FaTriangleExclamation />
+                </div>
+                <div>
+                  <h3 className="donation-modal-title">Delete Donation</h3>
+                  <span className="donation-modal-ref">{deleteConfirmDonation.donationId}</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                className="donation-modal-close-round"
+                onClick={() => !isDeleting && setDeleteConfirmDonation(null)}
+                aria-label="Close dialog"
+              >
+                <FaXmark />
+              </button>
+            </div>
+
+            <div className="donation-modal-body" style={{ padding: '1.4rem' }}>
+              <p style={{ margin: 0, fontSize: '0.92rem', color: 'var(--text-main, #1F1214)', lineHeight: 1.5 }}>
+                Are you sure you want to delete this offline donation record for{' '}
+                <strong>{deleteConfirmDonation.fullName}</strong> (
+                <strong style={{ color: '#A71920' }}>
+                  ₹{(deleteConfirmDonation.amount || 0).toLocaleString('en-IN')}
+                </strong>
+                )?
+              </p>
+              <p style={{ margin: '0.65rem 0 0', fontSize: '0.8rem', color: 'var(--text-muted, #6E5658)' }}>
+                This manual entry will be permanently removed from the ledger and the donation totals will be recalculated immediately.
+              </p>
+            </div>
+
+            <div className="donation-modal-footer" style={{ gap: '10px' }}>
+              <button
+                type="button"
+                className="donation-refresh-btn"
+                onClick={() => setDeleteConfirmDonation(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="donation-add-btn"
+                style={{ background: '#DC2626' }}
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -15,14 +15,16 @@ const donationSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
       trim: true,
       lowercase: true,
       index: true
     },
     mobileNumber: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
       trim: true
     },
     amount: {
@@ -39,9 +41,29 @@ const donationSchema = new mongoose.Schema(
       default: '',
       trim: true
     },
+    notes: {
+      type: String,
+      default: '',
+      trim: true
+    },
     isAnonymous: {
       type: Boolean,
       default: false
+    },
+    source: {
+      type: String,
+      enum: ['razorpay', 'admin'],
+      default: 'razorpay',
+      index: true
+    },
+    paymentMethod: {
+      type: String,
+      default: 'Online'
+    },
+    referenceNumber: {
+      type: String,
+      default: '',
+      trim: true
     },
     status: {
       type: String,
