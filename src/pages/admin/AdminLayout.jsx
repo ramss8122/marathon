@@ -1006,7 +1006,8 @@ export default function AdminLayout() {
               )}
 
               {/* Recent Activity Split */}
-              <div className="dashboard-activity-split">
+            
+
                 {/* Left: Latest Registrations */}
                 <div className="dashboard-activity-card">
                   <div className="activity-card-header">
@@ -1126,7 +1127,7 @@ export default function AdminLayout() {
                   )}
                 </div>
               </div>
-            </div>
+          
           )}
 
           {/* ══════════════════════════════════════════
@@ -2041,7 +2042,7 @@ export default function AdminLayout() {
                 <div className="status-buttons-row">
                   <div>
                     <label>Registration Status:</label>
-                    <div className="btn-group modal-status-btn-group">
+                    <div className="btn-group">
                       <button
                         type="button"
                         className={`btn btn-sm ${selectedParticipant.registrationStatus === 'Confirmed' ? 'btn-primary' : 'btn-outline'}`}
@@ -2068,7 +2069,7 @@ export default function AdminLayout() {
 
                   <div>
                     <label>Payment Status:</label>
-                    <div className="btn-group modal-status-btn-group">
+                    <div className="btn-group">
                       <button
                         type="button"
                         className={`btn btn-sm ${selectedParticipant.paymentStatus === 'Paid' ? 'btn-primary' : 'btn-outline'}`}

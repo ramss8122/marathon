@@ -719,7 +719,7 @@ India RunTrust Team`
       )}
 
       {/* ── TABS NAVIGATION ── */}
-      <div className="email-tabs-row" style={{ display: 'flex', gap: '0.5rem', borderBottom: '2px solid #E2E8F0', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '2px solid #E2E8F0', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         <button
           type="button"
           onClick={() => { setActiveTab('campaigns'); setFeedback(null); }}
@@ -831,7 +831,6 @@ India RunTrust Team`
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
           {/* Main City-Wise Bulk Campaign Builder */}
           <div
-            className="campaign-builder-card"
             style={{
               background: '#FFFFFF',
               borderRadius: '12px',
@@ -881,10 +880,9 @@ India RunTrust Team`
 
             {/* Filter Controls Row (Requirement 1 & 2) */}
             <div
-              className="campaign-filter-controls-row"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
                 gap: '1.25rem',
                 background: '#FAF8F5',
                 padding: '1.25rem',
@@ -930,30 +928,26 @@ India RunTrust Team`
                   <FaFilter style={{ color: '#A51C1F', marginRight: '6px' }} />
                   Registration Status Filter
                 </label>
-                <div className="campaign-status-btn-group" style={{ display: 'flex', gap: '6px', width: '100%' }}>
+                <div style={{ display: 'flex', gap: '6px' }}>
                   {['Confirmed', 'Pending', 'All'].map(statusOption => (
                     <button
                       key={statusOption}
                       type="button"
                       onClick={() => setSelectedCampaignStatus(statusOption)}
                       style={{
-                        flex: '1 1 0',
-                        minWidth: 0,
-                        padding: '0.6rem 0.35rem',
+                        flex: 1,
+                        padding: '0.65rem 0.5rem',
                         borderRadius: '6px',
                         border: selectedCampaignStatus === statusOption ? '2px solid #A51C1F' : '1px solid #CBD5E1',
                         background: selectedCampaignStatus === statusOption ? '#FEE2E2' : '#FFFFFF',
                         color: selectedCampaignStatus === statusOption ? '#A51C1F' : '#475569',
                         fontWeight: selectedCampaignStatus === statusOption ? 700 : 500,
-                        fontSize: '0.82rem',
+                        fontSize: '0.88rem',
                         cursor: 'pointer',
-                        textAlign: 'center',
-                        justifyContent: 'center',
-                        whiteSpace: 'nowrap',
                         transition: 'all 0.15s ease'
                       }}
                     >
-                      {statusOption === 'Confirmed' && <FaCheck style={{ marginRight: '4px', fontSize: '0.72rem' }} />}
+                      {statusOption === 'Confirmed' && <FaCheck style={{ marginRight: '4px', fontSize: '0.75rem' }} />}
                       {statusOption}
                     </button>
                   ))}
@@ -1288,15 +1282,14 @@ India RunTrust Team`
                 padding: '0.75rem 1.25rem',
                 borderBottom: '1px solid #F1F5F9',
                 fontSize: '0.9rem',
-                background: '#FAF8F5',
-                minWidth: 0
+                background: '#FAF8F5'
               }}
             >
-              <span style={{ width: '70px', flexShrink: 0, color: '#64748B', fontWeight: 600 }}>From:</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1E293B', fontWeight: 500, minWidth: 0, overflow: 'hidden' }}>
-                <span style={{ flexShrink: 0 }}>{config.mailFromName}</span>
-                <span style={{ color: '#64748B', fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>&lt;{config.mailFromAddress}&gt;</span>
-                <span style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.7rem', padding: '1px 6px', borderRadius: '4px', marginLeft: '0.5rem', flexShrink: 0 }}>
+              <span style={{ width: '70px', color: '#64748B', fontWeight: 600 }}>From:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1E293B', fontWeight: 500 }}>
+                <span>{config.mailFromName}</span>
+                <span style={{ color: '#64748B', fontSize: '0.85rem' }}>&lt;{config.mailFromAddress}&gt;</span>
+                <span style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.7rem', padding: '1px 6px', borderRadius: '4px', marginLeft: '0.5rem' }}>
                   Website Mailer
                 </span>
               </div>
@@ -1309,15 +1302,13 @@ India RunTrust Team`
                 alignItems: 'flex-start',
                 padding: '0.75rem 1.25rem',
                 borderBottom: '1px solid #F1F5F9',
-                fontSize: '0.9rem',
-                minWidth: 0,
-                overflow: 'hidden'
+                fontSize: '0.9rem'
               }}
             >
-              <span style={{ width: '70px', flexShrink: 0, color: '#64748B', fontWeight: 600, paddingTop: '4px' }}>
+              <span style={{ width: '70px', color: '#64748B', fontWeight: 600, paddingTop: '4px' }}>
                 To ({toChips.length}):
               </span>
-              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', maxHeight: '140px', overflowY: 'auto' }}>
+              <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', maxHeight: '140px', overflowY: 'auto' }}>
                 {toChips.map((chip, idx) => (
                   <span
                     key={idx}
@@ -1380,12 +1371,10 @@ India RunTrust Team`
                 alignItems: 'center',
                 padding: '0.75rem 1.25rem',
                 borderBottom: '1px solid #F1F5F9',
-                fontSize: '0.9rem',
-                minWidth: 0,
-                overflow: 'hidden'
+                fontSize: '0.9rem'
               }}
             >
-              <span style={{ width: '70px', flexShrink: 0, color: '#64748B', fontWeight: 600 }}>Subject:</span>
+              <span style={{ width: '70px', color: '#64748B', fontWeight: 600 }}>Subject:</span>
               <input
                 type="text"
                 value={subject}
@@ -1395,7 +1384,6 @@ India RunTrust Team`
                   border: 'none',
                   outline: 'none',
                   flex: 1,
-                  minWidth: 0,
                   fontSize: '0.95rem',
                   fontWeight: 600,
                   color: '#1E293B',
