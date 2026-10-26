@@ -169,31 +169,72 @@ p {
 
 .section-eyebrow {
   display: inline-block;
-   font-family: var(--font-heading);
-  font-size: 24px;
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-size: 24px; /* Desktop */
+  font-weight: 700; /* Updated weight */
+  letter-spacing: 1.5px; /* New spacing */
   margin-bottom: 0.75rem;
   color: var(--color-dark-gray);
- 
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .section-eyebrow {
+    font-size: 20px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .section-eyebrow {
+    font-size: 16px;
+  }
 }
 
 .section-title {
-   font-size: 20px; 
-  font-weight: 800;
+  font-size: 20px; /* Desktop */
+  font-weight: 800; /* Within 700‑800 range */
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: var(--color-blue-gray);
   margin-bottom: 0.5rem;
- 
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .section-title {
+    font-size: 18px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .section-title {
+    font-size: 16px;
+  }
 }
 
 .section-subtitle {
-  font-size: 14px;
+  font-size: 14px; /* Desktop */
   font-weight: 400;
   line-height: 1.5;
   color: var(--text-muted);
   max-width: 100%;
   margin: 0 auto;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .section-subtitle {
+    font-size: 13px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .section-subtitle {
+    font-size: 12px;
+  }
 }
 
 .section-footer-cta {
