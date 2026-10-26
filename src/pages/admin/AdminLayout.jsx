@@ -29,7 +29,8 @@ import {
   FaToggleOff,
   FaChevronDown,
   FaChevronUp,
-  FaHeart
+  FaHeart,
+  FaCheck
 } from 'react-icons/fa6';
 import Logo from '../../components/Logo';
 import { exportRegistrationsToExcel } from '../../utils/exportToExcel';
@@ -39,6 +40,75 @@ import Settings from './Settings';
 import DonationManagement from './DonationManagement';
 import adminFetch from '../../utils/adminFetch';
 import { getCityDisplayName } from '../../utils/cityHelper';
+
+const CITY_STATUS_OPTIONS = [
+  { value: 'All', label: 'All Cities' },
+  { value: 'active', label: 'Active Only' },
+  { value: 'inactive', label: 'Inactive Only' }
+];
+
+function AdminCustomDropdown({ value, onChange, options, ariaLabel, label }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const selectedOption = options.find((opt) => opt.value === value) || options[0];
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  return (
+    <div className="admin-custom-dropdown-wrap" ref={dropdownRef}>
+      {label && <label className="admin-custom-dropdown-label">{label}</label>}
+      <button
+        type="button"
+        className={`admin-custom-dropdown-btn ${isOpen ? 'open' : ''}`}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={ariaLabel || label}
+      >
+        <span className="dropdown-label-text">{selectedOption.label}</span>
+        <FaChevronDown className={`dropdown-chevron ${isOpen ? 'rotated' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <ul className="admin-custom-dropdown-menu" role="listbox">
+          {options.map((opt) => {
+            const isSelected = opt.value === value;
+            return (
+              <li
+                key={opt.value}
+                className={`admin-custom-dropdown-item ${isSelected ? 'selected' : ''}`}
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+              >
+                <span>{opt.label}</span>
+                {isSelected && <FaCheck className="dropdown-check-icon" />}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -1656,18 +1726,13 @@ export default function AdminLayout() {
                   </div>
 
                   <div className="filter-dropdowns">
-                    <div className="filter-select-wrap">
-                      <label>Status:</label>
-                      <select
-                        value={cityStatusFilter}
-                        onChange={(e) => setCityStatusFilter(e.target.value)}
-                        className="admin-select"
-                      >
-                        <option value="All">All Cities</option>
-                        <option value="active">Active Only</option>
-                        <option value="inactive">Inactive Only</option>
-                      </select>
-                    </div>
+                    <AdminCustomDropdown
+                      label="Status:"
+                      value={cityStatusFilter}
+                      onChange={(val) => setCityStatusFilter(val)}
+                      options={CITY_STATUS_OPTIONS}
+                      ariaLabel="Filter event cities by status"
+                    />
                   </div>
                 </div>
 

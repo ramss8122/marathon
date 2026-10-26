@@ -5955,6 +5955,94 @@ p {
   border-color: #9E1B22;
 }
 
+/* Custom Filter Dropdown for Admin Panel */
+.admin-custom-dropdown-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-sizing: border-box;
+}
+
+.admin-custom-dropdown-label {
+  font-size: 0.82rem;
+  color: #6B6B6B;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.admin-custom-dropdown-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.55rem 0.85rem;
+  font-size: 0.82rem;
+  font-family: var(--font-family);
+  font-weight: 500;
+  border: 1px solid #D6D0C4;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #1C1C1E;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  min-width: 140px;
+  box-sizing: border-box;
+}
+
+.admin-custom-dropdown-btn:hover {
+  border-color: #9E1B22;
+}
+
+.admin-custom-dropdown-btn.open,
+.admin-custom-dropdown-btn:focus-visible {
+  border-color: #9E1B22;
+  box-shadow: 0 0 0 2px rgba(158, 27, 34, 0.15);
+}
+
+.admin-custom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  min-width: 160px;
+  background: #FFFFFF;
+  border: 1px solid #D6D0C4;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  padding: 0.35rem;
+  margin: 0;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+.admin-custom-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #1C1C1E;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.admin-custom-dropdown-item:hover {
+  background: #FDF4F4;
+  color: #9E1B22;
+}
+
+.admin-custom-dropdown-item.selected {
+  background: #FFF1F2;
+  color: #9E1B22;
+  font-weight: 700;
+}
+
 /* Empty State */
 .admin-empty-state {
   text-align: center;
@@ -6707,17 +6795,48 @@ p {
 
   .filter-dropdowns {
     width: 100%;
+    display: flex;
     flex-direction: column;
     gap: 0.5rem;
   }
 
+  .admin-custom-dropdown-wrap {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+    box-sizing: border-box;
+  }
+
+  .admin-custom-dropdown-btn {
+    width: 100%;
+    min-height: 42px;
+    box-sizing: border-box;
+  }
+
+  .admin-custom-dropdown-menu {
+    width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: 0;
+    box-sizing: border-box;
+  }
+
   .filter-select-wrap {
     width: 100%;
-    flex: 1 1 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.35rem;
+    box-sizing: border-box;
   }
 
   .admin-select {
     width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    min-height: 42px;
   }
 
   /* Email Marketing Tabs & Grid on Mobile */
