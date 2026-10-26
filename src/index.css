@@ -10165,6 +10165,114 @@ p {
   background-color: #FFFFFF;
 }
 
+/* Custom Dropdown Filter for Donation Management */
+.donation-dropdown-wrap {
+  position: relative;
+  min-width: 190px;
+  box-sizing: border-box;
+}
+
+.donation-dropdown-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.65rem;
+  padding: 0.62rem 0.95rem;
+  font-size: 0.85rem;
+  font-family: var(--font-family);
+  font-weight: 500;
+  border: 1px solid #D9CBC7;
+  border-radius: 10px;
+  background: #FAF7F5;
+  color: var(--text-main, #1F1214);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+  text-align: left;
+  box-sizing: border-box;
+}
+
+.donation-dropdown-btn:hover {
+  background: #FFFFFF;
+  border-color: #B89E9B;
+}
+
+.donation-dropdown-btn.open,
+.donation-dropdown-btn:focus-visible {
+  border-color: var(--color-crimson, #A71920);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(163, 22, 33, 0.12);
+}
+
+.dropdown-label-text {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-chevron {
+  font-size: 0.72rem;
+  color: #6E5658;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.dropdown-chevron.rotated {
+  transform: rotate(180deg);
+}
+
+.donation-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  right: 0;
+  width: 100%;
+  min-width: 100%;
+  background: #FFFFFF;
+  border: 1px solid #D9CBC7;
+  border-radius: 10px;
+  box-shadow: 0 10px 28px rgba(53, 16, 20, 0.14);
+  z-index: 1000;
+  padding: 0.35rem;
+  margin: 0;
+  list-style: none;
+  box-sizing: border-box;
+}
+
+.donation-dropdown-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  font-size: 0.84rem;
+  font-weight: 500;
+  color: var(--text-main, #1F1214);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.donation-dropdown-item:hover {
+  background: #FDF4F4;
+  color: var(--color-crimson, #A71920);
+}
+
+.donation-dropdown-item.selected {
+  background: #FFF1F2;
+  color: var(--color-crimson, #A71920);
+  font-weight: 700;
+}
+
+.dropdown-check-icon {
+  font-size: 0.75rem;
+  color: var(--color-crimson, #A71920);
+  flex-shrink: 0;
+}
+
 .donation-toolbar-right {
   display: flex;
   align-items: center;
@@ -10757,6 +10865,113 @@ p {
   background: #F8FAFC;
   color: #475569;
   border: 1px solid #E2E8F0;
+}
+
+/* Mobile Responsive Overrides for Donation Management */
+@media (max-width: 768px) {
+  .donation-card {
+    padding: 1rem 0.85rem !important;
+    gap: 1rem !important;
+    border-radius: 14px !important;
+    overflow: visible !important;
+  }
+
+  .donation-card-header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.85rem !important;
+  }
+
+  .donation-card-header h2 {
+    text-align: left !important;
+    font-size: 1.15rem !important;
+    margin: 0 !important;
+  }
+
+  /* Toolbar Right: + Add Donation & Refresh cleanly aligned in a balanced row */
+  .donation-toolbar-right {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .donation-add-btn {
+    flex: 1.3 1 0 !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    padding: 0.55rem 0.65rem !important;
+    font-size: 0.84rem !important;
+    box-sizing: border-box !important;
+  }
+
+  .donation-refresh-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+    padding: 0.55rem 0.65rem !important;
+    font-size: 0.84rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Toolbar Filters on Mobile */
+  .donation-toolbar {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+  }
+
+  .donation-toolbar-left {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.65rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .donation-search-box {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    flex: none !important;
+    box-sizing: border-box !important;
+  }
+
+  .donation-search-input {
+    min-height: 42px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Custom Filter Dropdowns on Mobile: Full Width, 100% Contained */
+  .donation-dropdown-wrap {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .donation-dropdown-btn {
+    width: 100% !important;
+    min-height: 42px !important;
+    box-sizing: border-box !important;
+  }
+
+  .donation-dropdown-menu {
+    width: 100% !important;
+    max-width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    box-sizing: border-box !important;
+  }
 }
 
 

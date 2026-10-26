@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   FaMagnifyingGlass,
   FaRotate,
@@ -8,13 +8,90 @@ import {
   FaCircleCheck,
   FaCircleExclamation,
   FaPlus,
-  FaTriangleExclamation
+  FaTriangleExclamation,
+  FaChevronDown,
+  FaCheck
 } from 'react-icons/fa6';
 import adminFetch from '../../utils/adminFetch';
 import DonationStatCard from './DonationStatCard';
 import DonationTable from './DonationTable';
 import DonationDetailsModal from './DonationDetailsModal';
 import AddDonationModal from './AddDonationModal';
+
+const STATUS_OPTIONS = [
+  { value: 'all', label: 'All Status' },
+  { value: 'Successful', label: 'Successful' },
+  { value: 'Pending', label: 'Pending' },
+  { value: 'Failed', label: 'Failed' }
+];
+
+const GATEWAY_OPTIONS = [
+  { value: 'all', label: 'All Sources & Gateways' },
+  { value: 'Razorpay', label: 'Online (Razorpay)' },
+  { value: 'Manual', label: 'Offline / Manual (Admin)' }
+];
+
+function DonationFilterDropdown({ value, onChange, options, ariaLabel }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  const selectedOption = options.find((opt) => opt.value === value) || options[0];
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [isOpen]);
+
+  return (
+    <div className="donation-dropdown-wrap" ref={dropdownRef}>
+      <button
+        type="button"
+        className={`donation-dropdown-btn ${isOpen ? 'open' : ''}`}
+        onClick={() => setIsOpen((prev) => !prev)}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-label={ariaLabel}
+      >
+        <span className="dropdown-label-text">{selectedOption.label}</span>
+        <FaChevronDown className={`dropdown-chevron ${isOpen ? 'rotated' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <ul className="donation-dropdown-menu" role="listbox">
+          {options.map((opt) => {
+            const isSelected = opt.value === value;
+            return (
+              <li
+                key={opt.value}
+                className={`donation-dropdown-item ${isSelected ? 'selected' : ''}`}
+                role="option"
+                aria-selected={isSelected}
+                onClick={() => {
+                  onChange(opt.value);
+                  setIsOpen(false);
+                }}
+              >
+                <span>{opt.label}</span>
+                {isSelected && <FaCheck className="dropdown-check-icon" />}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 export default function DonationManagement() {
   const [donations, setDonations] = useState([]);
@@ -253,32 +330,23 @@ export default function DonationManagement() {
             </div>
 
             {/* Filter: Status */}
-            <select
-              className="donation-select"
+            <DonationFilterDropdown
               value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
+              onChange={(val) => {
+                setStatusFilter(val);
                 setPage(1);
               }}
-              aria-label="Filter by payment status"
-            >
-              <option value="all">All Status</option>
-              <option value="Successful">Successful</option>
-              <option value="Pending">Pending</option>
-              <option value="Failed">Failed</option>
-            </select>
+              options={STATUS_OPTIONS}
+              ariaLabel="Filter by payment status"
+            />
 
             {/* Filter: Gateway / Source */}
-            <select
-              className="donation-select"
+            <DonationFilterDropdown
               value={gatewayFilter}
-              onChange={(e) => setGatewayFilter(e.target.value)}
-              aria-label="Filter by payment gateway or source"
-            >
-              <option value="all">All Sources &amp; Gateways</option>
-              <option value="Razorpay">Online (Razorpay)</option>
-              <option value="Manual">Offline / Manual (Admin)</option>
-            </select>
+              onChange={(val) => setGatewayFilter(val)}
+              options={GATEWAY_OPTIONS}
+              ariaLabel="Filter by payment gateway or source"
+            />
           </div>
         </div>
 
