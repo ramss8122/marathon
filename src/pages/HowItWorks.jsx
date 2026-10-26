@@ -90,7 +90,7 @@ export default function HowItWorks() {
     {
       icon: <FaAppleWhole />,
       title: 'Post-Race Breakfast Box',
-      desc: 'Fresh banana, high-protein traditional breakfast box, and refreshing beverage immediately after the finish line.'
+      desc: 'Fresh banana, high-protein traditional breakfast box, and refreshing  immediately after the finish line.'
     },
     {
       icon: <FaTrophy />,
@@ -213,11 +213,11 @@ export default function HowItWorks() {
               <span className="stat-label">Easy Steps</span>
             </div>
             <div className="page-hero-image-frame">
-             <img
-  src="https://images.unsplash.com/photo-1502904550040-7534597429ae?auto=format&fit=crop&w=800&q=80"
-  alt="Marathon runners running on the road"
-  className="about-feature-img"
-/>
+              <img
+                src="https://images.unsplash.com/photo-1502904550040-7534597429ae?auto=format&fit=crop&w=800&q=80"
+                alt="Marathon runners running on the road"
+                className="about-feature-img"
+              />
               <div className="page-hero-img-caption">
                 <FaLocationDot /> Race Morning Preparation
               </div>
@@ -358,7 +358,7 @@ export default function HowItWorks() {
         </div>
       </section>
 
-     
+
 
     </div>
   );

@@ -6,8 +6,8 @@ export const RACE_PACKAGES = [
     formattedPrice: '₹499',
     distance: '1K',
     tagline: 'Family & Beginners Friendly',
-    description: 'A cheerful, un-timed run designed for first-timers, kids, and families seeking an active morning together.',
-    includes: ['Finisher Medal', 'Digital Certificate', 'Hydration Support', 'Breakfast Snack Box']
+    description: 'A cheerful, non-timed run designed for first-time runners, kids, and families seeking an active morning get together.',
+    includes: ['Finisher Medal', 'Digital Certificate', 'Hydration Support', 'Breakfast Snack refreshment']
   },
   {
     id: '3k',
@@ -17,7 +17,7 @@ export const RACE_PACKAGES = [
     distance: '3K',
     tagline: 'Step Into Regular Running',
     description: 'Ideal milestone for joggers transitioning into regular running routines with full course cheer zones.',
-    includes: ['RFID Bib Tag', 'Finisher Medal', 'Refreshment Pack', 'E-Certificate']
+    includes: ['Timed RFID BIB', 'Finisher Medal', 'Refreshment Pack', 'E-Certificate']
   },
   {
     id: '5k',
@@ -27,7 +27,7 @@ export const RACE_PACKAGES = [
     distance: '5K',
     tagline: 'The Classic Fitness Challenge',
     description: 'A popular choice for fitness enthusiasts and community groups aiming to test endurance and pace.',
-    includes: ['Timed RFID Bib', 'Technical Dry-fit T-Shirt', 'Finisher Medal', 'Post-Race Nutrition']
+    includes: ['Timed RFID BIB', 'Technical Dry-fit T-Shirt', 'Finisher Medal', 'Post-Race Nutrition']
   },
   {
     id: '10k',
@@ -37,7 +37,7 @@ export const RACE_PACKAGES = [
     distance: '10K',
     tagline: 'Endurance & Performance Pace',
     description: 'Targeted for seasoned runners focusing on speed and aerobic conditioning with official timing splits.',
-    includes: ['Official Timing Chip', 'Performance T-Shirt', 'Commemorative Medal', 'Medical Support']
+    includes: ['Timed RFID BIB', 'Performance T-Shirt', 'Commemorative Medal', 'Medical Support']
   },
   {
     id: '21k',
@@ -47,7 +47,7 @@ export const RACE_PACKAGES = [
     distance: '21K',
     tagline: 'The Ultimate Endurance Test',
     description: 'The pinnacle distance challenge featuring pacing pacers, energy stations, and comprehensive recovery facilities.',
-    includes: ['Certified Timing Bib', 'Premium Runner Jersey', 'Heavy Finisher Medal', 'Recovery Zone Access']
+    includes: ['Timed RFID BIB', 'Premium Runner Jersey', 'Heavy Finisher Medal', 'Recovery Zone Access']
   }
 ];
 

@@ -150,6 +150,14 @@ export default function DonationManagement() {
         </div>
       )}
 
+      {/* Page Header */}
+      <div className="donation-page-header" style={{ marginBottom: '0.25rem' }}>
+        <h1 className="donation-header-title">Donation Management</h1>
+        <p className="donation-header-desc">
+          Track public donations, donor records, and verified payment gateway transactions.
+        </p>
+      </div>
+
       {/* 1. Overview Stat Cards */}
       <div className="donation-stats-grid">
         <DonationStatCard
@@ -184,12 +192,9 @@ export default function DonationManagement() {
       <div className="donation-card">
         {/* Header */}
         <div className="donation-card-header">
-          <div>
-            <h2 className="donation-header-title">Donation Management</h2>
-            <p className="donation-header-desc">
-              Track live contributions, amounts, donor contact records, and payment gateway references.
-            </p>
-          </div>
+          <h2 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, color: 'var(--color-maroon-dark, #351014)' }}>
+            Donation Records
+          </h2>
 
           {/* Action Toolbar Right: Add Donation + Refresh */}
           <div className="donation-toolbar-right">

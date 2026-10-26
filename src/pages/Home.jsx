@@ -244,7 +244,7 @@ export default function Home() {
             <span className="section-eyebrow">Scheduled Races</span>
            
             <p className="section-subtitle">
-              Join spirited morning marathons designed for every runner and experience level.
+              Join spirited morning run designed for every runner and experience level.
             </p>
           </div>
 
@@ -347,7 +347,7 @@ export default function Home() {
               <div className="step-num">1</div>
               <div className="step-icon-wrap"><FaRoute /></div>
               <h3 className="step-card-title">Explore Events</h3>
-              <p className="step-card-desc">Find upcoming marathon dates in Chennai.</p>
+              <p className="step-card-desc">Find upcoming events dates.</p>
             </div>
 
             <div className="step-compact-card">

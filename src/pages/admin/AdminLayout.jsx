@@ -613,8 +613,21 @@ export default function AdminLayout() {
 
   const navigateTo = (sec) => {
     setActiveSection(sec);
+    setSidebarOpen(false);
     navigate(`/admin/${sec === 'dashboard' ? 'dashboard' : sec}`);
   };
+
+  // Lock background scroll when mobile sidebar is open
+  useEffect(() => {
+    if (sidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [sidebarOpen]);
 
   return (
     <div className="admin-shell">
@@ -671,6 +684,21 @@ export default function AdminLayout() {
       <div className="admin-body">
         {/* ── SIDEBAR NAVIGATION ── */}
         <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
+          {/* Mobile sidebar header with close button */}
+          <div className="admin-sidebar-mobile-header">
+            <div className="admin-sidebar-brand-mini">
+              <Logo size="small" clickable={false} />
+            </div>
+            <button
+              type="button"
+              className="admin-sidebar-close-btn"
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close Sidebar"
+            >
+              <FaXmark />
+            </button>
+          </div>
+
           <div className="admin-sidebar-nav">
             <div className="sidebar-group-label">NAVIGATION</div>
 
@@ -795,7 +823,7 @@ export default function AdminLayout() {
         {/* ── MAIN CONTENT AREA ── */}
         <main className="admin-main">
           {/* Action Bar */}
-          {activeSection !== 'email-marketing' && activeSection !== 'settings' && (
+          {activeSection !== 'email-marketing' && activeSection !== 'settings' && activeSection !== 'donations' && (
             <div className="admin-action-bar">
             <div>
               <h1 className="admin-page-title">
