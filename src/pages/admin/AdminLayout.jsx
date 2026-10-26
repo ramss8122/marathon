@@ -2097,7 +2097,7 @@ export default function AdminLayout() {
               </div>
             </div>
 
-            <div className="modal-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="modal-footer">
               <button
                 type="button"
                 className="btn btn-outline btn-sm delete-btn"

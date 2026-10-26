@@ -6337,15 +6337,15 @@ p {
 }
 
 @media (max-width: 768px) {
-  /* Prevent horizontal layout blowouts */
+  /* Prevent horizontal layout blowouts while preserving position: sticky */
   html, body {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   .admin-shell {
     width: 100%;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip;
     position: relative;
   }
 
@@ -6353,18 +6353,24 @@ p {
     width: 100%;
     max-width: 100vw;
     min-width: 0;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
-  /* Admin Header */
+  /* Admin Header - Sticky in Mobile View */
   .admin-header {
+    position: sticky !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1000 !important;
     padding: 0 0.75rem;
     height: 56px;
     min-height: 56px;
     width: 100%;
     max-width: 100vw;
     box-sizing: border-box;
-    overflow: hidden;
+    background: #1C1C1E;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   }
 
   .admin-header-left {
@@ -6784,7 +6790,33 @@ p {
 
   .donation-modal-footer,
   .admin-modal-card .modal-footer {
-    padding: 0.85rem 1rem;
+    padding: 0.95rem 1rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.65rem !important;
+  }
+
+  .admin-modal-card .modal-footer .modal-footer-left {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100% !important;
+    gap: 0.65rem !important;
+  }
+
+  .admin-modal-card .modal-footer .btn,
+  .admin-modal-card .modal-footer .delete-btn {
+    width: 100% !important;
+    min-height: 42px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
   }
 
   .participant-detail-grid {
