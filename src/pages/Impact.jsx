@@ -205,42 +205,7 @@ export default function Impact() {
         </div>
       </section>
 
-      {/* ── EVENT REPORTS ── */}
-      <section className="section">
-        <div className="content-container">
-          <div className="section-header">
-            <span className="section-eyebrow">Event reports</span>
-            <h2 className="section-title">What each event delivered</h2>
-          </div>
-
-          {eventReports.length === 0 ? (
-            <p className="section-subtitle">
-              Event reports will appear here once an event has been completed and its
-              figures are verified.
-            </p>
-          ) : (
-            <div className="category-matrix-grid">
-              {eventReports.map((r) => (
-                <div key={r.event} className="category-matrix-card">
-                  <h3 className="category-matrix-title">{r.event}</h3>
-                  <p className="category-matrix-subtitle">
-                    <strong>Initiative:</strong> {r.initiative}<br />
-                    <strong>Partner:</strong> {r.partner}<br />
-                    <strong>Committed:</strong> {r.committed}<br />
-                    <strong>Delivered:</strong> {r.delivered}
-                  </p>
-                  {r.proofLink && (
-                    <Link to={r.proofLink} className="btn btn-outline btn-block">
-                      <span>See the report</span>
-                      <FaArrowRight className="btn-icon" />
-                    </Link>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+    
 
       {/* ── GET INVOLVED ── */}
       <section className="section bg-surface">

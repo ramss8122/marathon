@@ -59,6 +59,7 @@ html {
   font-size: 16px;
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  overflow-x: clip;
 }
 
 body {
@@ -67,7 +68,7 @@ body {
   color: var(--text-main);
   line-height: 1.6;
   min-height: 100vh;
-  overflow-x: hidden;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -382,10 +383,12 @@ p {
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: 1000;
+  width: 100%;
   background-color: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
-  box-shadow: 0 2px 10px rgba(74, 74, 74, 0.04);
+  box-shadow: 0 2px 12px rgba(74, 74, 74, 0.06);
+  backdrop-filter: blur(8px);
 }
 
 .site-header-container {
@@ -5592,13 +5595,15 @@ p {
 }
 
 .dashboard-activity-card {
-
   background: #FFFFFF;
-  margin-top:30px;
+  margin-top: 0;
   border: 1px solid #D6D0C4;
   border-radius: var(--radius-md);
-  padding: 1.5rem ;
+  padding: 1.5rem;
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .activity-card-header {
@@ -8404,62 +8409,7 @@ p {
   font-weight: 800;
 }
 
-@media (max-width: 768px) {
-  .reg-options-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .admin-form-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* AddRegistrationModal: footer wraps on mobile so both rows stack */
-  .admin-reg-modal .modal-footer {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.65rem;
-    padding: 0.85rem 1rem;
-  }
-
-  .admin-reg-modal .modal-footer-left,
-  .admin-reg-modal .modal-footer-right {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    gap: 0.5rem;
-    align-items: center;
-  }
-
-  .admin-reg-modal .modal-footer .btn {
-    flex: 1;
-    justify-content: center;
-    font-size: 0.82rem;
-    padding: 0.6rem 0.75rem;
-  }
-
-  /* participant card header: badge + title stack instead of overflow */
-  .p-card-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .p-card-title {
-    font-size: 0.95rem;
-  }
-
-  /* Step tracker compresses labels on small screens */
-  .reg-step-tracker {
-    font-size: 0.75rem;
-    gap: 0.4rem;
-    padding: 0.6rem 0.75rem;
-  }
-
-  .step-tracker-divider {
-    width: 16px;
-  }
-}
-
-/* ── TASK 6: REGISTRATION SUMMARY & PAYMENT REVIEW STYLES ── */
+/* ── REGISTRATION STEP TRACKER (BASE) ── */
 .reg-step-tracker {
   display: flex;
   align-items: center;
@@ -8469,6 +8419,8 @@ p {
   background: #FAF8F5;
   border-bottom: 1px solid #EDEAE3;
   font-size: 0.82rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .step-tracker-item {
@@ -8505,6 +8457,7 @@ p {
   font-weight: 800;
   background: #E5E0D8;
   color: #555555;
+  flex-shrink: 0;
 }
 
 .step-tracker-item.active .step-tracker-badge {
@@ -8521,6 +8474,107 @@ p {
   width: 28px;
   height: 2px;
   background: #E5E0D8;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .reg-options-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* AddRegistrationModal: header alignment on mobile */
+  .admin-reg-modal .modal-header {
+    padding: 0.85rem 1rem;
+    gap: 0.65rem;
+  }
+
+  .admin-reg-modal .modal-header-title {
+    min-width: 0;
+    flex: 1;
+    gap: 0.6rem;
+  }
+
+  .admin-reg-modal .modal-header-title h2 {
+    font-size: 1.05rem !important;
+    line-height: 1.25;
+  }
+
+  .admin-reg-modal .modal-header-title .msg-date {
+    display: block;
+    font-size: 0.75rem !important;
+    line-height: 1.3;
+  }
+
+  /* AddRegistrationModal: footer wraps on mobile so both rows stack */
+  .admin-reg-modal .modal-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    padding: 0.85rem 1rem;
+  }
+
+  .admin-reg-modal .modal-footer-left,
+  .admin-reg-modal .modal-footer-right {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .admin-reg-modal .modal-footer .btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 0.82rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  /* participant card header: badge + title stack instead of overflow */
+  .p-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .p-card-header > div {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .p-card-title {
+    font-size: 0.95rem;
+    margin: 0;
+  }
+
+  /* Step tracker compresses labels on small screens without cut-off */
+  .reg-step-tracker {
+    font-size: 0.74rem;
+    gap: 0.35rem;
+    padding: 0.55rem 0.5rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+  }
+
+  .step-tracker-item {
+    font-size: 0.74rem;
+    white-space: nowrap;
+    gap: 0.3rem;
+  }
+
+  .step-tracker-badge {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+  }
+
+  .step-tracker-divider {
+    width: 14px;
+  }
 }
 
 .review-group-banner {

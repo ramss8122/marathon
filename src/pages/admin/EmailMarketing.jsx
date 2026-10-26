@@ -637,17 +637,17 @@ India RunTrust Team`
   return (
     <div className="email-marketing-view" style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {/* ── SECTION HEADER ── */}
-      <div className="section-header" style={{ marginBottom: '1.25rem' }}>
+      <div className="admin-action-bar" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <h1 className="section-title" style={{ fontFamily: 'Playfair Display, Georgia, serif', color: '#1E293B', fontSize: '1.85rem', fontWeight: 800 }}>
+          <h1 className="admin-page-title" style={{ margin: '0 0 0.25rem 0' }}>
             Email Marketing
           </h1>
-          <p className="section-subtitle" style={{ color: '#64748B', fontSize: '0.95rem' }}>
+          <p className="admin-page-sub" style={{ margin: 0 }}>
             City-wise bulk announcements, official runner updates, and participant email communications.
           </p>
         </div>
 
-        <div className="section-actions">
+        <div className="admin-action-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <button
             type="button"
             className="btn btn-outline btn-sm"
@@ -1466,6 +1466,8 @@ India RunTrust Team`
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
+                flexWrap: 'wrap',
+                gap: '0.75rem',
                 padding: '0.85rem 1.25rem',
                 borderTop: '1px solid #E2E8F0',
                 background: '#FAF8F5'

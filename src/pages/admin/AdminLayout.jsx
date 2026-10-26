@@ -1006,8 +1006,7 @@ export default function AdminLayout() {
               )}
 
               {/* Recent Activity Split */}
-            
-
+              <div className="dashboard-activity-split">
                 {/* Left: Latest Registrations */}
                 <div className="dashboard-activity-card">
                   <div className="activity-card-header">
@@ -1127,7 +1126,7 @@ export default function AdminLayout() {
                   )}
                 </div>
               </div>
-          
+            </div>
           )}
 
           {/* ══════════════════════════════════════════
