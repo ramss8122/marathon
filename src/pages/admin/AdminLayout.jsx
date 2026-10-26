@@ -2041,7 +2041,7 @@ export default function AdminLayout() {
                 <div className="status-buttons-row">
                   <div>
                     <label>Registration Status:</label>
-                    <div className="btn-group">
+                    <div className="btn-group modal-status-btn-group">
                       <button
                         type="button"
                         className={`btn btn-sm ${selectedParticipant.registrationStatus === 'Confirmed' ? 'btn-primary' : 'btn-outline'}`}
@@ -2068,7 +2068,7 @@ export default function AdminLayout() {
 
                   <div>
                     <label>Payment Status:</label>
-                    <div className="btn-group">
+                    <div className="btn-group modal-status-btn-group">
                       <button
                         type="button"
                         className={`btn btn-sm ${selectedParticipant.paymentStatus === 'Paid' ? 'btn-primary' : 'btn-outline'}`}

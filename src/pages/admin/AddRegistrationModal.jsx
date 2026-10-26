@@ -552,7 +552,8 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
             <span className="step-tracker-badge">
               {currentStep !== 'form' ? <FaCheck style={{ fontSize: '0.65rem' }} /> : '1'}
             </span>
-            <span>Participant Details</span>
+            <span className="step-tracker-label-full">Participant Details</span>
+            <span className="step-tracker-label-short">Details</span>
           </div>
 
           <div className="step-tracker-divider" />
@@ -561,14 +562,16 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
             <span className="step-tracker-badge">
               {currentStep === 'success' ? <FaCheck style={{ fontSize: '0.65rem' }} /> : '2'}
             </span>
-            <span>Summary &amp; Payment</span>
+            <span className="step-tracker-label-full">Summary &amp; Payment</span>
+            <span className="step-tracker-label-short">Payment</span>
           </div>
 
           <div className="step-tracker-divider" />
 
           <div className={`step-tracker-item ${currentStep === 'success' ? 'active' : ''}`}>
             <span className="step-tracker-badge">3</span>
-            <span>Confirmation</span>
+            <span className="step-tracker-label-full">Confirmation</span>
+            <span className="step-tracker-label-short">Confirm</span>
           </div>
         </div>
 
@@ -1031,7 +1034,7 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
               return (
                 <div key={idx} className="participant-form-card">
                   <div className="p-card-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <div className="p-card-title-group" style={{ display: 'flex', alignItems: 'center', gap: '0.6rem', flexWrap: 'wrap' }}>
                       <span className="p-card-badge">Participant {idx + 1}</span>
                       <h3 className="p-card-title">
                         {idx === 0 ? 'Primary Participant Details' : `Participant ${idx + 1} Details`}

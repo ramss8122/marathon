@@ -637,17 +637,17 @@ India RunTrust Team`
   return (
     <div className="email-marketing-view" style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {/* ── SECTION HEADER ── */}
-      <div className="admin-action-bar" style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="section-header" style={{ marginBottom: '1.25rem' }}>
         <div>
-          <h1 className="admin-page-title" style={{ margin: '0 0 0.25rem 0' }}>
+          <h1 className="section-title" style={{ fontFamily: 'Playfair Display, Georgia, serif', color: '#1E293B', fontSize: '1.85rem', fontWeight: 800 }}>
             Email Marketing
           </h1>
-          <p className="admin-page-sub" style={{ margin: 0 }}>
+          <p className="section-subtitle" style={{ color: '#64748B', fontSize: '0.95rem' }}>
             City-wise bulk announcements, official runner updates, and participant email communications.
           </p>
         </div>
 
-        <div className="admin-action-bar-right" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="section-actions">
           <button
             type="button"
             className="btn btn-outline btn-sm"
@@ -719,7 +719,7 @@ India RunTrust Team`
       )}
 
       {/* ── TABS NAVIGATION ── */}
-      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '2px solid #E2E8F0', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+      <div className="email-tabs-row" style={{ display: 'flex', gap: '0.5rem', borderBottom: '2px solid #E2E8F0', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
         <button
           type="button"
           onClick={() => { setActiveTab('campaigns'); setFeedback(null); }}
@@ -831,6 +831,7 @@ India RunTrust Team`
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
           {/* Main City-Wise Bulk Campaign Builder */}
           <div
+            className="campaign-builder-card"
             style={{
               background: '#FFFFFF',
               borderRadius: '12px',
@@ -880,9 +881,10 @@ India RunTrust Team`
 
             {/* Filter Controls Row (Requirement 1 & 2) */}
             <div
+              className="campaign-filter-controls-row"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
                 gap: '1.25rem',
                 background: '#FAF8F5',
                 padding: '1.25rem',
@@ -928,26 +930,30 @@ India RunTrust Team`
                   <FaFilter style={{ color: '#A51C1F', marginRight: '6px' }} />
                   Registration Status Filter
                 </label>
-                <div style={{ display: 'flex', gap: '6px' }}>
+                <div className="campaign-status-btn-group" style={{ display: 'flex', gap: '6px', width: '100%' }}>
                   {['Confirmed', 'Pending', 'All'].map(statusOption => (
                     <button
                       key={statusOption}
                       type="button"
                       onClick={() => setSelectedCampaignStatus(statusOption)}
                       style={{
-                        flex: 1,
-                        padding: '0.65rem 0.5rem',
+                        flex: '1 1 0',
+                        minWidth: 0,
+                        padding: '0.6rem 0.35rem',
                         borderRadius: '6px',
                         border: selectedCampaignStatus === statusOption ? '2px solid #A51C1F' : '1px solid #CBD5E1',
                         background: selectedCampaignStatus === statusOption ? '#FEE2E2' : '#FFFFFF',
                         color: selectedCampaignStatus === statusOption ? '#A51C1F' : '#475569',
                         fontWeight: selectedCampaignStatus === statusOption ? 700 : 500,
-                        fontSize: '0.88rem',
+                        fontSize: '0.82rem',
                         cursor: 'pointer',
+                        textAlign: 'center',
+                        justifyContent: 'center',
+                        whiteSpace: 'nowrap',
                         transition: 'all 0.15s ease'
                       }}
                     >
-                      {statusOption === 'Confirmed' && <FaCheck style={{ marginRight: '4px', fontSize: '0.75rem' }} />}
+                      {statusOption === 'Confirmed' && <FaCheck style={{ marginRight: '4px', fontSize: '0.72rem' }} />}
                       {statusOption}
                     </button>
                   ))}
@@ -1466,8 +1472,6 @@ India RunTrust Team`
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '0.75rem',
                 padding: '0.85rem 1.25rem',
                 borderTop: '1px solid #E2E8F0',
                 background: '#FAF8F5'
