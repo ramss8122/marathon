@@ -8483,6 +8483,170 @@ p {
   background: #E5E0D8;
 }
 
+/* Step tracker label toggles */
+.step-text-full {
+  display: inline;
+}
+
+.step-text-short {
+  display: none;
+}
+
+.participant-tabs-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.admin-reg-modal .tab-text-desktop {
+  display: inline;
+}
+
+.admin-reg-modal .reg-modal-footer .modal-footer-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.admin-reg-modal .reg-cancel-btn {
+  order: 1;
+}
+
+.admin-reg-modal .reg-proceed-btn {
+  order: 2;
+}
+
+/* Scoped responsive rules for Add Registration Modal */
+@media (max-width: 768px) {
+  /* 1. Top Step Tracker Bar - Compact & no overflow */
+  .admin-reg-modal .reg-step-tracker {
+    padding: 0.55rem 0.65rem;
+    gap: 0.35rem;
+    justify-content: space-between;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .admin-reg-modal .step-text-full {
+    display: none !important;
+  }
+
+  .admin-reg-modal .step-text-short {
+    display: inline !important;
+    font-size: 0.74rem;
+    font-weight: 700;
+  }
+
+  .admin-reg-modal .step-tracker-item {
+    gap: 0.3rem;
+    flex-shrink: 0;
+  }
+
+  .admin-reg-modal .step-tracker-badge {
+    width: 20px;
+    height: 20px;
+    font-size: 0.7rem;
+    flex-shrink: 0;
+  }
+
+  .admin-reg-modal .step-tracker-divider {
+    flex: 1 1 10px;
+    min-width: 8px;
+    max-width: 24px;
+    width: auto;
+    height: 2px;
+  }
+
+  /* 2. Group Participant Tabs - Clean straight single line: 1 2 3 */
+  .admin-reg-modal .participant-tabs-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    gap: 0.5rem !important;
+    width: 100% !important;
+    margin-bottom: 0.85rem !important;
+  }
+
+  .admin-reg-modal .participant-tab-btn {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0.35rem !important;
+    min-height: 44px !important;
+    padding: 0.5rem 0.25rem !important;
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    border-radius: 8px !important;
+  }
+
+  .admin-reg-modal .participant-tab-btn .tab-text-desktop {
+    display: none !important;
+  }
+
+  .admin-reg-modal .participant-tab-btn .tab-number {
+    font-size: 1.05rem !important;
+    font-weight: 800 !important;
+    line-height: 1 !important;
+  }
+
+  /* 3. Modal Footer Buttons - Full width & vertically stacked */
+  .admin-reg-modal .modal-footer.reg-modal-footer {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.65rem !important;
+    padding: 0.85rem 1rem !important;
+  }
+
+  .admin-reg-modal .fee-summary-pill {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 0.85rem !important;
+  }
+
+  .admin-reg-modal .modal-footer-left {
+    width: 100% !important;
+  }
+
+  .admin-reg-modal .modal-footer-right {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.55rem !important;
+    width: 100% !important;
+  }
+
+  .admin-reg-modal .reg-proceed-btn {
+    order: 1 !important;
+    width: 100% !important;
+    min-height: 46px !important;
+    justify-content: center !important;
+    font-size: 0.92rem !important;
+    font-weight: 700 !important;
+  }
+
+  .admin-reg-modal .reg-edit-btn {
+    order: 2 !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+  }
+
+  .admin-reg-modal .reg-cancel-btn {
+    order: 3 !important;
+    width: 100% !important;
+    min-height: 42px !important;
+    justify-content: center !important;
+  }
+}
+
 .review-group-banner {
   background: #FDF9F2;
   border: 1px solid #F5E6CC;

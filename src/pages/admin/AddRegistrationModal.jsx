@@ -552,7 +552,8 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
             <span className="step-tracker-badge">
               {currentStep !== 'form' ? <FaCheck style={{ fontSize: '0.65rem' }} /> : '1'}
             </span>
-            <span>Participant Details</span>
+            <span className="step-text-full">Participant Details</span>
+            <span className="step-text-short">Details</span>
           </div>
 
           <div className="step-tracker-divider" />
@@ -561,14 +562,16 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
             <span className="step-tracker-badge">
               {currentStep === 'success' ? <FaCheck style={{ fontSize: '0.65rem' }} /> : '2'}
             </span>
-            <span>Summary &amp; Payment</span>
+            <span className="step-text-full">Summary &amp; Payment</span>
+            <span className="step-text-short">Review &amp; Pay</span>
           </div>
 
           <div className="step-tracker-divider" />
 
           <div className={`step-tracker-item ${currentStep === 'success' ? 'active' : ''}`}>
             <span className="step-tracker-badge">3</span>
-            <span>Confirmation</span>
+            <span className="step-text-full">Confirmation</span>
+            <span className="step-text-short">Done</span>
           </div>
         </div>
 
@@ -1006,9 +1009,10 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
                       type="button"
                       className={`participant-tab-btn ${activeTab === idx ? 'active' : ''} ${hasErr ? 'has-error' : ''}`}
                       onClick={() => setActiveTab(idx)}
+                      title={`Participant ${idx + 1}`}
                     >
                       <span className="tab-number">{idx + 1}</span>
-                      <span className="tab-text">
+                      <span className="tab-text-desktop">
                         Participant {idx + 1}
                         {participantsData[idx].fullName && (
                           <span className="tab-name-hint">: {participantsData[idx].fullName.split(' ')[0]}</span>
@@ -1372,7 +1376,7 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
 
         {/* ── MODAL FOOTER ── */}
         {currentStep === 'form' && (
-          <div className="modal-footer">
+          <div className="modal-footer reg-modal-footer">
             <div className="modal-footer-left">
               <div className="fee-summary-pill">
                 <span className="fee-label">Estimated Total ({participantCount} {participantCount === 1 ? 'person' : 'people'}):</span>
@@ -1380,32 +1384,32 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
               </div>
             </div>
 
-            <div className="modal-footer-right" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <div className="modal-footer-right">
               <button
                 type="button"
-                className="btn btn-outline btn-sm"
-                onClick={handleClose}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm admin-action-primary-btn"
+                className="btn btn-primary btn-sm admin-action-primary-btn reg-proceed-btn"
                 onClick={handleProceedToReview}
               >
                 <span>Review &amp; Proceed to Payment</span>
                 <FaArrowRight />
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm reg-cancel-btn"
+                onClick={handleClose}
+              >
+                Cancel
               </button>
             </div>
           </div>
         )}
 
         {currentStep === 'review' && (
-          <div className="modal-footer">
+          <div className="modal-footer reg-modal-footer">
             <div className="modal-footer-left">
               <button
                 type="button"
-                className="btn btn-outline btn-sm"
+                className="btn btn-outline btn-sm reg-edit-btn"
                 onClick={() => setCurrentStep('form')}
                 disabled={isSubmitting}
               >
@@ -1414,18 +1418,10 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
               </button>
             </div>
 
-            <div className="modal-footer-right" style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+            <div className="modal-footer-right">
               <button
                 type="button"
-                className="btn btn-outline btn-sm"
-                onClick={handleClose}
-                disabled={isSubmitting}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="btn btn-primary btn-sm admin-action-primary-btn"
+                className="btn btn-primary btn-sm admin-action-primary-btn reg-proceed-btn"
                 onClick={handleConfirmAndPay}
                 disabled={isSubmitting || isCalculating}
               >
@@ -1440,6 +1436,14 @@ export default function AddRegistrationModal({ isOpen, onClose, onSuccess }) {
                     <span>Proceed to Payment (₹{displayTotal.toLocaleString('en-IN')})</span>
                   </>
                 )}
+              </button>
+              <button
+                type="button"
+                className="btn btn-outline btn-sm reg-cancel-btn"
+                onClick={handleClose}
+                disabled={isSubmitting}
+              >
+                Cancel
               </button>
             </div>
           </div>
