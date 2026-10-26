@@ -1019,13 +1019,14 @@ export default function Settings({ cities = [] }) {
                 <label style={{ display: 'block', fontSize: '0.82rem', fontWeight: 600, color: '#334155', marginBottom: '4px' }}>
                   Current Password
                 </label>
-                <div style={{ display: 'flex', gap: '0.65rem' }}>
+                <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap', alignItems: 'center' }}>
                   <input
                     type="password"
                     readOnly
                     value="••••••••••••"
                     style={{
-                      flex: 1,
+                      flex: '1 1 150px',
+                      minWidth: 0,
                       padding: '0.55rem 0.75rem',
                       borderRadius: '6px',
                       border: '1px solid #CBD5E1',
@@ -1050,7 +1051,8 @@ export default function Settings({ cities = [] }) {
                       alignItems: 'center',
                       gap: '0.45rem',
                       cursor: 'pointer',
-                      whiteSpace: 'nowrap'
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
                     }}
                   >
                     <FaLock style={{ fontSize: '0.8rem' }} />

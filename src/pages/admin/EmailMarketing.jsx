@@ -1282,14 +1282,15 @@ India RunTrust Team`
                 padding: '0.75rem 1.25rem',
                 borderBottom: '1px solid #F1F5F9',
                 fontSize: '0.9rem',
-                background: '#FAF8F5'
+                background: '#FAF8F5',
+                minWidth: 0
               }}
             >
-              <span style={{ width: '70px', color: '#64748B', fontWeight: 600 }}>From:</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1E293B', fontWeight: 500 }}>
-                <span>{config.mailFromName}</span>
-                <span style={{ color: '#64748B', fontSize: '0.85rem' }}>&lt;{config.mailFromAddress}&gt;</span>
-                <span style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.7rem', padding: '1px 6px', borderRadius: '4px', marginLeft: '0.5rem' }}>
+              <span style={{ width: '70px', flexShrink: 0, color: '#64748B', fontWeight: 600 }}>From:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1E293B', fontWeight: 500, minWidth: 0, overflow: 'hidden' }}>
+                <span style={{ flexShrink: 0 }}>{config.mailFromName}</span>
+                <span style={{ color: '#64748B', fontSize: '0.85rem', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 }}>&lt;{config.mailFromAddress}&gt;</span>
+                <span style={{ background: '#E2E8F0', color: '#475569', fontSize: '0.7rem', padding: '1px 6px', borderRadius: '4px', marginLeft: '0.5rem', flexShrink: 0 }}>
                   Website Mailer
                 </span>
               </div>
@@ -1302,13 +1303,15 @@ India RunTrust Team`
                 alignItems: 'flex-start',
                 padding: '0.75rem 1.25rem',
                 borderBottom: '1px solid #F1F5F9',
-                fontSize: '0.9rem'
+                fontSize: '0.9rem',
+                minWidth: 0,
+                overflow: 'hidden'
               }}
             >
-              <span style={{ width: '70px', color: '#64748B', fontWeight: 600, paddingTop: '4px' }}>
+              <span style={{ width: '70px', flexShrink: 0, color: '#64748B', fontWeight: 600, paddingTop: '4px' }}>
                 To ({toChips.length}):
               </span>
-              <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', maxHeight: '140px', overflowY: 'auto' }}>
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', maxHeight: '140px', overflowY: 'auto' }}>
                 {toChips.map((chip, idx) => (
                   <span
                     key={idx}
@@ -1371,10 +1374,12 @@ India RunTrust Team`
                 alignItems: 'center',
                 padding: '0.75rem 1.25rem',
                 borderBottom: '1px solid #F1F5F9',
-                fontSize: '0.9rem'
+                fontSize: '0.9rem',
+                minWidth: 0,
+                overflow: 'hidden'
               }}
             >
-              <span style={{ width: '70px', color: '#64748B', fontWeight: 600 }}>Subject:</span>
+              <span style={{ width: '70px', flexShrink: 0, color: '#64748B', fontWeight: 600 }}>Subject:</span>
               <input
                 type="text"
                 value={subject}
@@ -1384,6 +1389,7 @@ India RunTrust Team`
                   border: 'none',
                   outline: 'none',
                   flex: 1,
+                  minWidth: 0,
                   fontSize: '0.95rem',
                   fontWeight: 600,
                   color: '#1E293B',
